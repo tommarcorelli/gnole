@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>GNOLE. — L'appli qui lance la soirée</title>
+<meta name="description" content="L'appli qui lance la soirée : 10 jeux à boire (Picolo, Roi de la soirée, La Bombe, Duel, Le Dé...). Mode sans alcool inclus.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0A0713">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GNOLE">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0713;
+    --bg-2:#1B0F2E;
+    --ink:#F5EFE6;
+    --muted:#9E90BE;
+    --glass: rgba(255,255,255,0.045);
+    --glass-edge: rgba(255,255,255,0.10);
+    --sunset-1:#FF2E88;
+    --sunset-2:#FF7A3D;
+    --sunset-3:#FFC857;
+
+    --m-picolo:#FF3E7A;   --m-picolo-dk:#3D0A1E;
+    --m-roi:#FFC857;      --m-roi-dk:#3D2C05;
+    --m-susc:#7C9EFF;     --m-susc-dk:#161F47;
+    --m-chrono:#4DE8FF;   --m-chrono-dk:#08303B;
+    --m-av:#B98BFF;       --m-av-dk:#26173F;
+    --m-bomb:#FF5A3D;     --m-bomb-dk:#3D1206;
+    --m-roul:#E85DFF;     --m-roul-dk:#340D44;
+    --m-para:#2DD4BF;     --m-para-dk:#0A302B;
+    --m-duel:#B6FF3D;     --m-duel-dk:#243A05;
+    --m-de:#FF6B6B;       --m-de-dk:#3A1010;
+
+    --c-gorgee:#FF3E7A;   --c-gorgee-dk:#3D0A1E;
+    --c-cascade:#FFC857;  --c-cascade-dk:#3D2C05;
+    --c-regle:#B98BFF;    --c-regle-dk:#26173F;
+    --c-action:#C6FF3D;   --c-action-dk:#2C3708;
+    --c-duel:#FF8A3D;     --c-duel-dk:#3D1F06;
+    --c-verite:#2DD4BF;   --c-verite-dk:#0A302B;
+    --c-distribue:#FFD84D;--c-distribue-dk:#3A2F04;
+    --c-gage:#E85DFF;     --c-gage-dk:#340D44;
+    --c-chrono:#4DE8FF;   --c-chrono-dk:#08262F;
+    --c-jamais:#FF6B6B;   --c-jamais-dk:#3A1010;
+    --c-vote:#7C9EFF;     --c-vote-dk:#151D40;
+    --c-anecdote:#FFAB4D; --c-anecdote-dk:#3A2504;
+    --c-impro:#FF5DC1;    --c-impro-dk:#3A0E31;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    min-height:100vh;
+    font-family:'Manrope', -apple-system, sans-serif;
+    color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    padding: 22px 16px 70px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .bg-fx{ position:fixed; inset:0; z-index:-2; overflow:hidden; background: var(--bg); }
+  .bg-fx::after{
+    content:""; position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+  }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(130% 90% at 50% 30%, transparent 55%, rgba(0,0,0,.55) 100%);
+  }
+  .blob{ position:absolute; border-radius:50%; filter:blur(80px); opacity:.5; }
+  .b1{ width:340px; height:340px; background:var(--sunset-1); top:-120px; left:-100px; animation: drift1 16s ease-in-out infinite alternate; }
+  .b2{ width:300px; height:300px; background:var(--m-chrono); bottom:-100px; right:-90px; animation: drift2 19s ease-in-out infinite alternate; }
+  .b3{ width:260px; height:260px; background:var(--m-roi); top:40%; left:50%; opacity:.28; animation: drift3 22s ease-in-out infinite alternate; }
+  @keyframes drift1{ from{transform:translate(0,0);} to{transform:translate(40px,60px);} }
+  @keyframes drift2{ from{transform:translate(0,0);} to{transform:translate(-30px,-50px);} }
+  @keyframes drift3{ from{transform:translate(-50%,-50%) scale(1);} to{transform:translate(-50%,-50%) scale(1.25);} }
+
+  .screen{ width:100%; max-width:440px; }
+  .hide{ display:none !important; }
+
+  /* ---- Hub ---- */
+  .hub-header{ text-align:center; margin: 8px 0 22px; }
+  .wordmark{
+    font-family:'Anton', sans-serif; font-size:62px; letter-spacing:1px;
+    text-transform:uppercase; line-height:1; display:inline-block;
+    background: linear-gradient(90deg, var(--sunset-1), var(--sunset-2) 50%, var(--sunset-3) 75%, var(--sunset-1));
+    background-size:250% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter: drop-shadow(0 0 24px rgba(255,46,136,.4));
+    animation: sheen 6s linear infinite;
+  }
+  @keyframes sheen{ from{ background-position:0% 0; } to{ background-position:250% 0; } }
+  .wordmark .dot{ color: var(--sunset-3); -webkit-text-fill-color: var(--sunset-3); }
+  .hub-tag{
+    display:inline-block; margin-top:12px; color:var(--muted); font-size:12px; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase;
+    border:1px solid var(--glass-edge); border-radius:999px; padding:6px 14px;
+    background:rgba(255,255,255,.03); backdrop-filter:blur(6px);
+  }
+
+  .panel{
+    background: var(--glass); backdrop-filter: blur(14px);
+    border: 1px solid var(--glass-edge); border-radius:20px; padding:18px;
+    margin-bottom:20px;
+  }
+  .panel h2{ font-size:11.5px; letter-spacing:1.6px; text-transform:uppercase; color:var(--muted); margin:0 0 12px; display:flex; align-items:center; gap:8px;}
+  .count-badge{ background:linear-gradient(135deg,var(--sunset-1),var(--sunset-2)); color:#2B0316; font-weight:800; border-radius:20px; padding:2px 9px; font-size:11px; }
+
+  .player-row{ display:flex; gap:8px; margin-bottom:10px; }
+  input[type="text"]{
+    flex:1; background:rgba(0,0,0,.28); border:1px solid var(--glass-edge);
+    border-radius:12px; color:var(--ink); padding:13px 14px; font-size:15px; outline:none;
+    font-family:'Manrope', sans-serif;
+  }
+  input[type="text"]:focus{ border-color: var(--sunset-1); box-shadow:0 0 0 3px rgba(255,46,136,.15); }
+  .btn-add{
+    background: linear-gradient(135deg, var(--sunset-1), var(--sunset-2));
+    color:#2B0316; border:none; border-radius:12px; padding:0 20px;
+    font-weight:900; font-size:22px; cursor:pointer; transition:transform .14s ease, box-shadow .14s ease;
+  }
+  .btn-add:hover{ transform:translateY(-1px); box-shadow:0 8px 20px -8px var(--sunset-1); }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin: 2px 0 14px; min-height:8px; }
+  .chip{
+    background:rgba(0,0,0,.28); border:1px solid var(--glass-edge); border-radius:20px;
+    padding:7px 8px 7px 14px; font-size:14px; display:flex; align-items:center; gap:8px; font-weight:600;
+  }
+  .chip button{ background:none; border:none; color:var(--muted); font-size:15px; cursor:pointer; padding:2px; }
+  .empty-hint{ color:var(--muted); font-size:13px; padding:4px 2px 12px; }
+
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; gap:14px; border-top:1px solid var(--glass-edge); padding-top:14px; }
+  .toggle-row.no-border{ border-top:1px solid var(--glass-edge); }
+  .toggle-label{ font-size:14px; font-weight:700; }
+  .toggle-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .switch{ position:relative; width:46px; height:26px; background:rgba(0,0,0,.35); border:1px solid var(--glass-edge); border-radius:20px; cursor:pointer; flex-shrink:0; }
+  .switch .knob{ position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:var(--muted); transition:transform .18s ease, background .18s ease; }
+  .switch.on{ background:rgba(198,255,61,.16); border-color:rgba(198,255,61,.5); }
+  .switch.on .knob{ transform:translateX(20px); background:var(--c-action); }
+
+  .module-list{ display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+  .module-card{
+    position:relative; display:flex; align-items:center; gap:15px; overflow:hidden;
+    background: linear-gradient(135deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
+    border:1px solid var(--glass-edge);
+    border-radius:18px; padding:16px 18px 16px 18px; cursor:pointer;
+    box-shadow: 0 8px 30px -22px #000;
+    transition: transform .16s ease, box-shadow .25s ease, border-color .2s ease;
+  }
+  /* liseré coloré illuminé */
+  .module-card::before{
+    content:""; position:absolute; left:0; top:12px; bottom:12px; width:4px; border-radius:4px;
+    background: var(--mc); box-shadow: 0 0 12px -1px var(--mc);
+  }
+  /* halo diffus derrière l'icône */
+  .module-card::after{
+    content:""; position:absolute; left:-10px; top:50%; transform:translateY(-50%);
+    width:90px; height:90px; border-radius:50%; background: var(--mc); opacity:.14; filter:blur(26px);
+  }
+  .module-card:hover{ transform: translateY(-3px); border-color: var(--mc); box-shadow: 0 16px 40px -20px var(--mc); }
+  .module-card:hover .module-arrow{ transform: translateX(4px); }
+  .module-card:active{ transform: scale(.98); }
+  .module-card.locked{ cursor:not-allowed; }
+  .module-card.locked .module-icon{ filter:grayscale(.7); opacity:.6; }
+  .module-card.locked .module-name, .module-card.locked .module-tag{ opacity:.5; }
+  .module-card.locked::before, .module-card.locked::after{ opacity:.08; box-shadow:none; }
+  .module-card.locked:hover{ transform:none; border-color:var(--glass-edge); box-shadow:0 8px 30px -22px #000; }
+  .module-icon{
+    font-size:26px; width:54px; height:54px; flex-shrink:0; border-radius:15px;
+    display:flex; align-items:center; justify-content:center; position:relative; z-index:1;
+    background: var(--mc-dk); border:1px solid var(--glass-edge);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .module-info{ flex:1; min-width:0; position:relative; z-index:1; }
+  .module-name{ font-family:'Anton', sans-serif; font-size:20px; letter-spacing:.5px; color:var(--mc); text-transform:uppercase; }
+  .module-tag{ font-size:12.5px; color:var(--muted); margin-top:3px; line-height:1.4; }
+  .module-min{ font-size:10.5px; color:var(--muted); margin-top:5px; text-transform:uppercase; letter-spacing:.5px; }
+  .module-arrow{ font-size:20px; color:var(--mc); flex-shrink:0; position:relative; z-index:1; transition: transform .18s ease; }
+
+  .disclaimer{ text-align:center; color:var(--muted); font-size:11px; line-height:1.6; padding:0 10px; }
+
+  /* ---- Shared sub-screens ---- */
+  .topbar{ display:flex; justify-content:space-between; align-items:center; width:100%; max-width:420px; margin-bottom:16px; }
+  .pill{ font-size:12px; color:var(--muted); background:var(--glass); border:1px solid var(--glass-edge); padding:7px 13px; border-radius:20px; font-weight:700; }
+  .pill.quit{ cursor:pointer; }
+  .module-title{ font-family:'Anton', sans-serif; font-size:26px; letter-spacing:.5px; text-transform:uppercase; margin: 4px 0 2px; }
+  .module-sub{ color:var(--muted); font-size:13px; margin-bottom:18px; }
+
+  .mode-grid{ display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+  .mode-card{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:rgba(0,0,0,.25); border:1px solid var(--glass-edge); border-radius:12px;
+    padding:13px 14px; cursor:pointer;
+  }
+  .mode-card.selected{ border-color: var(--mc, var(--sunset-1)); }
+  .mode-card .mode-name{ font-size:14px; font-weight:800; }
+  .mode-card .mode-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .mode-card .mode-check{ width:18px; height:18px; border-radius:50%; border:1px solid var(--glass-edge); flex-shrink:0; }
+  .mode-card.selected .mode-check{ border-color: var(--mc, var(--sunset-1)); background: var(--mc, var(--sunset-1)); }
+
+  .cat-filter{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px; }
+  .cat-chip{
+    font-size:12px; padding:7px 12px; border-radius:20px; cursor:pointer;
+    border:1px solid var(--glass-edge); background:rgba(0,0,0,.25); color:var(--muted); font-weight:700;
+  }
+  .cat-chip.off{ opacity:0.4; }
+
+  .btn-start{
+    width:100%; background: linear-gradient(135deg, var(--mc, var(--sunset-1)), var(--sunset-3));
+    color:#170318; border:none; border-radius:14px; padding:16px; font-size:15px; font-weight:900;
+    letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:'Manrope', sans-serif;
+  }
+  .btn-start:disabled{ opacity:0.3; cursor:not-allowed; }
+  .btn-secondary{
+    width:100%; background:var(--glass); color:var(--ink); border:1px solid var(--glass-edge);
+    border-radius:14px; padding:14px; font-size:14px; font-weight:800; cursor:pointer; margin-top:10px;
+  }
+
+  .stage{ position:relative; width:100%; max-width:340px; height:430px; margin: 6px auto 24px; }
+  .stack-edge{ position:absolute; inset:0; border-radius:24px; background: var(--glass-edge); }
+  .stack-edge.e1{ transform: translateY(14px) scale(0.97); opacity:0.5; }
+  .stack-edge.e2{ transform: translateY(26px) scale(0.94); opacity:0.25; }
+  .card{
+    position:absolute; inset:0; border-radius:24px;
+    background: linear-gradient(160deg, rgba(255,255,255,.055), rgba(255,255,255,.015)), var(--bg-2);
+    border:1px solid var(--glass-edge);
+    display:flex; flex-direction:column; padding:26px 24px; cursor:pointer;
+    transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .28s ease;
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,.6);
+  }
+  .card.leaving{ transform: translateX(-120%) rotate(-8deg); opacity:0; }
+  .card.entering{ animation: enterCard .32s cubic-bezier(.2,.8,.2,1); }
+  @keyframes enterCard{ from{ transform: translateX(120%) rotate(8deg); opacity:0; } to{ transform: translateX(0) rotate(0); opacity:1; } }
+
+  .cat-badge{ align-self:flex-start; font-size:12px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; padding:7px 14px; border-radius:20px; margin-bottom:20px; display:inline-flex; align-items:center; gap:8px; }
+  .card-text{ flex:1; display:flex; align-items:center; font-size:23px; line-height:1.35; font-weight:700; color:var(--ink); }
+  .card-num{ align-self:flex-end; font-size:12px; color:var(--muted); letter-spacing:1px; font-weight:700; }
+
+  .progress-track{ width:100%; max-width:340px; height:4px; margin:0 auto 18px; background:var(--glass-edge); border-radius:4px; overflow:hidden; }
+  .progress-fill{ height:100%; width:0%; transition:width .3s ease; }
+
+  .hint{ text-align:center; color:var(--muted); font-size:13px; margin-bottom:10px; }
+  .recap{ text-align:center; color:var(--muted); font-size:12.5px; margin-bottom:14px; line-height:1.5; }
+  .recap b{ color:var(--ink); }
+  .lives-bar{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:14px; }
+  .life-chip{ background:var(--glass); border:1px solid var(--glass-edge); border-radius:20px; padding:5px 10px; font-size:12px; display:flex; align-items:center; gap:6px; }
+  .life-chip.out{ opacity:0.3; text-decoration:line-through; }
+  .btn-outline{ width:100%; max-width:340px; margin:0 auto 10px; display:block; background:var(--glass); color:var(--ink); border:1px solid var(--glass-edge); border-radius:14px; padding:13px; font-size:14px; font-weight:800; cursor:pointer; }
+
+  .end-panel{ text-align:center; padding: 34px 20px; }
+  .end-panel .wordmark{ font-size:28px; margin-bottom:6px; }
+  .end-panel p{ color:var(--muted); font-size:14px; margin: 4px 0 22px; line-height:1.5; }
+  .end-emoji{ font-size:54px; line-height:1; margin-bottom:8px; animation:endPop .45s cubic-bezier(.2,.9,.3,1.4); }
+  @keyframes endPop{ from{ transform:scale(0); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .finish-link{ text-align:center; color:var(--muted); font-size:13px; margin-top:4px; cursor:pointer; text-decoration:underline; }
+
+  /* ---- Roi de la soirée ---- */
+  .kings-track{ display:flex; justify-content:center; gap:10px; margin-bottom:14px; }
+  .king-slot{ width:30px; height:30px; border-radius:8px; background:var(--glass); border:1px solid var(--glass-edge); display:flex; align-items:center; justify-content:center; font-size:16px; opacity:.35; }
+  .king-slot.filled{ opacity:1; background: var(--m-roi-dk); border-color:var(--m-roi); box-shadow:0 0 12px -2px var(--m-roi); }
+  .roi-suit{ font-size:80px; text-align:center; margin-bottom:14px; line-height:1; }
+  .roi-rank{ font-family:'Anton', sans-serif; font-size:15px; letter-spacing:2px; text-align:center; color:var(--muted); margin-bottom:16px; text-transform:uppercase;}
+  .roi-turn{ text-align:center; font-size:12px; color:var(--m-roi); font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+
+  /* ---- Susceptible ---- */
+  .vote-grid{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:360px; margin: 0 auto 16px; }
+  .vote-chip{ background:var(--glass); border:1px solid var(--glass-edge); color:var(--ink); border-radius:14px; padding:11px 16px; font-size:14px; font-weight:800; cursor:pointer; }
+  .vote-chip:active{ transform:scale(.95); background: var(--m-susc-dk); border-color:var(--m-susc); }
+  .leaderboard{ display:flex; flex-direction:column; gap:8px; max-width:340px; margin: 0 auto 20px; }
+  .lb-row{ display:flex; align-items:center; gap:10px; background:var(--glass); border:1px solid var(--glass-edge); border-radius:12px; padding:10px 14px; }
+  .lb-rank{ font-family:'Anton', sans-serif; font-size:16px; color:var(--m-susc); width:22px; }
+  .lb-name{ flex:1; font-weight:800; font-size:14px; }
+  .lb-score{ font-size:13px; color:var(--muted); font-weight:700; }
+
+  /* ---- Chrono ---- */
+  .timer-wrap{ display:flex; justify-content:center; margin: 0 0 16px; }
+  .timer-ring{ width:96px; height:96px; border-radius:50%; display:flex; align-items:center; justify-content:center; background: conic-gradient(var(--m-chrono) calc(var(--pct,100) * 1%), rgba(255,255,255,.08) 0); transition: background .2s linear; }
+  .timer-num{ width:80px; height:80px; border-radius:50%; background:var(--bg-2); display:flex; align-items:center; justify-content:center; font-family:'Anton', sans-serif; font-size:26px; }
+  .chrono-actions{ display:flex; gap:10px; max-width:340px; margin: 0 auto; }
+  .btn-fail{ flex:1; background: var(--c-jamais-dk); border:1px solid var(--c-jamais); color: var(--c-jamais); border-radius:14px; padding:14px; font-weight:900; cursor:pointer; font-size:14px;}
+  .btn-ok{ flex:1; background: var(--c-action-dk); border:1px solid var(--c-action); color: var(--c-action); border-radius:14px; padding:14px; font-weight:900; cursor:pointer; font-size:14px;}
+  .diff-row{ display:flex; gap:8px; margin-bottom:18px; }
+  .diff-chip{ flex:1; text-align:center; background:rgba(0,0,0,.25); border:1px solid var(--glass-edge); border-radius:12px; padding:12px 8px; cursor:pointer; font-size:13px; font-weight:800; color:var(--muted); }
+  .diff-chip.active{ color: var(--m-chrono); border-color: var(--m-chrono); background: var(--m-chrono-dk); }
+
+  /* ---- La Bombe ---- */
+  .bomb-visual{ font-size:92px; text-align:center; margin:18px 0 16px; line-height:1; filter:drop-shadow(0 0 22px rgba(255,90,61,.55)); animation:bombPulse 1s ease-in-out infinite; }
+  @keyframes bombPulse{ 0%,100%{ transform:scale(1) rotate(-3deg); } 50%{ transform:scale(1.12) rotate(3deg); } }
+  .bomb-visual.fast{ animation-duration:.38s; }
+  .bombe-prompt{ text-align:center; font-family:'Anton', sans-serif; font-size:27px; line-height:1.15; margin:2px auto 24px; max-width:340px; padding:0 12px; }
+  #bombe-pass-btn{ max-width:340px; margin:0 auto 12px; display:block; }
+
+  /* ---- Roulette des gages ---- */
+  .slot{
+    position:relative; width:100%; max-width:340px; margin:8px auto 18px; height:150px; border-radius:20px; overflow:hidden;
+    background:linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.015)), var(--bg-2);
+    border:1px solid var(--glass-edge); display:flex; align-items:center; justify-content:center; padding:16px;
+    box-shadow:inset 0 0 40px -12px var(--m-roul);
+  }
+  .slot::before,.slot::after{ content:""; position:absolute; left:0; right:0; height:44px; z-index:2; pointer-events:none; }
+  .slot::before{ top:0; background:linear-gradient(var(--bg-2), transparent); }
+  .slot::after{ bottom:0; background:linear-gradient(transparent, var(--bg-2)); }
+  .slot-text{ text-align:center; font-family:'Anton', sans-serif; font-size:21px; line-height:1.2; color:var(--ink); }
+  .slot.spinning .slot-text{ filter:blur(1px); opacity:.85; }
+
+  /* ---- Paranoïa (pièce) ---- */
+  .coin{
+    width:88px; height:88px; margin:6px auto 14px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #FFE79A, #E0A83B); color:#3A2A05;
+    display:flex; align-items:center; justify-content:center; font-size:36px;
+    box-shadow:0 10px 26px -10px rgba(0,0,0,.6);
+  }
+  .coin.flipping{ animation:coinFlip .5s linear infinite; }
+  @keyframes coinFlip{ 0%{transform:rotateX(0);} 100%{transform:rotateX(360deg);} }
+
+  /* ---- Duel ---- */
+  .versus{ display:flex; align-items:center; justify-content:center; gap:12px; margin:20px auto; max-width:360px; }
+  .vs-name{ flex:1; text-align:center; font-family:'Anton', sans-serif; font-size:22px; text-transform:uppercase; padding:16px 6px; border-radius:16px; background:var(--m-duel-dk); border:1px solid var(--m-duel); color:var(--m-duel); line-height:1.05; }
+  .vs-badge{ font-family:'Anton', sans-serif; font-size:20px; color:var(--muted); }
+
+  /* ---- Le Dé ---- */
+  .die{
+    width:118px; height:118px; margin:14px auto 16px; border-radius:26px;
+    background:linear-gradient(150deg, #ffffff, #d7d7e4); color:#1a1526;
+    display:flex; align-items:center; justify-content:center; font-size:66px; line-height:1;
+    box-shadow:0 16px 40px -14px rgba(0,0,0,.6), inset 0 2px 6px rgba(255,255,255,.7);
+  }
+  .die.rolling{ animation:dieRoll .5s ease-in-out infinite; }
+  @keyframes dieRoll{ 0%{transform:rotate(0) scale(1);} 25%{transform:rotate(-14deg) scale(1.06);} 50%{transform:rotate(12deg) scale(.96);} 75%{transform:rotate(-7deg) scale(1.03);} 100%{transform:rotate(0) scale(1);} }
+</style>
+</head>
+<body>
+<div class="bg-fx"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<!-- ======================= HUB ======================= -->
+<div class="screen" id="hub-screen">
+  <div class="hub-header">
+    <div class="wordmark">GNOLE<span class="dot">.</span></div>
+    <div class="hub-tag">Choisis ton jeu, la soirée s'occupe du reste.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Joueurs <span class="count-badge" id="player-count">0</span></h2>
+    <div class="player-row">
+      <input id="player-input" type="text" placeholder="Prénom du joueur" maxlength="16">
+      <button class="btn-add" id="add-btn" aria-label="Ajouter">+</button>
+    </div>
+    <div class="chips" id="hub-chips"></div>
+    <div class="empty-hint" id="hub-empty-hint">Ajoute au moins 2 joueurs pour commencer.</div>
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Mode sans alcool</div>
+        <div class="toggle-sub">Remplace les gorgées par des points, dans tous les jeux</div>
+      </div>
+      <div class="switch" id="hub-soft-toggle"><div class="knob"></div></div>
+    </div>
+  </div>
+
+  <div class="module-list" id="module-list"></div>
+
+  <div class="disclaimer">Jeux à consommer avec modération. Prévois de l'eau à portée de main et ne force jamais quelqu'un qui ne veut pas boire.</div>
+</div>
+
+<!-- ======================= PICOLO ======================= -->
+<div class="screen hide" id="picolo-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🃏 Picolo</div></div>
+  <div class="module-title" style="color:var(--m-picolo)">Picolo</div>
+  <div class="module-sub">Le classique repensé — 8 modes, 200+ cartes.</div>
+  <div class="panel">
+    <h2>Mode de jeu</h2>
+    <div class="mode-grid" id="picolo-mode-grid" style="--mc:var(--m-picolo)"></div>
+    <h2>Catégories incluses</h2>
+    <div class="cat-filter" id="picolo-cat-filter"></div>
+    <button class="btn-start" id="picolo-start-btn" style="--mc:var(--m-picolo)" disabled>Lancer la partie</button>
+  </div>
+</div>
+
+<div class="screen hide" id="picolo-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="picolo-progress-pill">Carte 1</div></div>
+  <div class="recap hide" id="picolo-teams-recap"></div>
+  <div class="lives-bar hide" id="picolo-lives-bar"></div>
+  <div class="progress-track"><div class="progress-fill" id="picolo-progress-fill" style="background:var(--m-picolo)"></div></div>
+  <div class="stage">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="picolo-card">
+      <div class="cat-badge" id="picolo-cat-badge"><span id="picolo-cat-label">CATÉGORIE</span></div>
+      <div class="card-text" id="picolo-card-text">Texte de la carte</div>
+      <div class="card-num" id="picolo-card-num">1 / 50</div>
+    </div>
+  </div>
+  <div class="hint" id="picolo-hint-text">Touche la carte pour continuer</div>
+  <button class="btn-outline hide" id="picolo-life-btn" style="color:var(--m-picolo); border-color:var(--m-picolo);">💀 Le/la perdant(e) perd une vie</button>
+</div>
+
+<div class="screen hide" id="picolo-end-screen">
+  <div class="panel end-panel">
+    <div class="wordmark" style="font-size:26px;">FIN<span class="dot">.</span></div>
+    <p id="picolo-end-text">Le paquet est vide. On relance un tour ?</p>
+    <button class="btn-start" id="picolo-replay-btn" style="--mc:var(--m-picolo)">Rejouer</button>
+    <button class="btn-secondary" data-back="hub-screen">← Changer de jeu</button>
+  </div>
+</div>
+
+<!-- ======================= ROI DE LA SOIRÉE ======================= -->
+<div class="screen hide" id="roi-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">👑 Roi</div></div>
+  <div class="module-title" style="color:var(--m-roi)">Roi de la soirée</div>
+  <div class="module-sub">Le jeu de cartes culte. 52 cartes, 52 règles, un verre au centre.</div>
+  <div class="panel">
+    <h2>Règles du jeu</h2>
+    <div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Posez un verre vide au centre de la table. Chaque joueur pioche une carte à son tour et applique la règle du rang tiré. Les Rois sont spéciaux : celui qui tire le <b style="color:var(--ink)">4ᵉ Roi</b> doit boire tout le verre du centre.</div>
+  </div>
+  <button class="btn-start" id="roi-start-btn" style="--mc:var(--m-roi)">Poser le paquet</button>
+</div>
+
+<div class="screen hide" id="roi-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="roi-progress-pill">Carte 1 / 52</div></div>
+  <div class="kings-track" id="roi-kings-track"></div>
+  <div class="roi-turn" id="roi-turn">Au tour de —</div>
+  <div class="progress-track"><div class="progress-fill" id="roi-progress-fill" style="background:var(--m-roi)"></div></div>
+  <div class="stage">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="roi-card">
+      <div class="roi-suit" id="roi-suit">🂠</div>
+      <div class="roi-rank" id="roi-rank">CARTE</div>
+      <div class="card-text" id="roi-card-text" style="font-size:19px; text-align:center; justify-content:center;">Règle</div>
+    </div>
+  </div>
+  <div class="hint">Touche la carte pour piocher la suivante</div>
+</div>
+
+<div class="screen hide" id="roi-end-screen">
+  <div class="panel end-panel">
+    <div class="wordmark" style="font-size:26px; color:var(--m-roi); -webkit-text-fill-color:var(--m-roi);">👑 ROI DU VERRE</div>
+    <p id="roi-end-text"></p>
+    <button class="btn-start" id="roi-replay-btn" style="--mc:var(--m-roi)">Rejouer</button>
+    <button class="btn-secondary" data-back="hub-screen">← Changer de jeu</button>
+  </div>
+</div>
+
+<!-- ======================= LE PLUS SUSCEPTIBLE ======================= -->
+<div class="screen hide" id="susc-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🫵 Vote</div></div>
+  <div class="module-title" style="color:var(--m-susc)">Le plus susceptible</div>
+  <div class="module-sub">Une question, un doigt tendu, un boulet désigné.</div>
+  <div class="panel">
+    <h2>Comment jouer</h2>
+    <div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Une question s'affiche. Au signal, tout le monde pointe du doigt vers la personne qui correspond le mieux. Touche le prénom le plus désigné : il/elle boit et prend un point de boulet.</div>
+  </div>
+  <button class="btn-start" id="susc-start-btn" style="--mc:var(--m-susc)">Commencer le vote</button>
+</div>
+
+<div class="screen hide" id="susc-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="susc-progress-pill">Question 1</div></div>
+  <div class="progress-track"><div class="progress-fill" id="susc-progress-fill" style="background:var(--m-susc)"></div></div>
+  <div class="stage" style="height:280px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="susc-card" style="cursor:default;">
+      <div class="cat-badge" style="background:var(--m-susc-dk); color:var(--m-susc);">QUI EST LE PLUS SUSCEPTIBLE...</div>
+      <div class="card-text" id="susc-card-text" style="font-size:20px;">Question</div>
+    </div>
+  </div>
+  <div class="hint">Touche le prénom le plus désigné</div>
+  <div class="vote-grid" id="susc-vote-grid"></div>
+  <button class="btn-outline" id="susc-skip-btn" style="color:var(--m-susc); border-color:var(--m-susc);">Passer cette question →</button>
+  <button class="btn-outline" id="susc-finish-btn">🏆 Voir le classement</button>
+</div>
+
+<div class="screen hide" id="susc-end-screen">
+  <div class="panel end-panel">
+    <div class="wordmark" style="font-size:26px;">🏆 CLASSEMENT</div>
+    <div class="leaderboard" id="susc-leaderboard"></div>
+    <button class="btn-start" id="susc-replay-btn" style="--mc:var(--m-susc)">Revoter</button>
+    <button class="btn-secondary" data-back="hub-screen">← Changer de jeu</button>
+  </div>
+</div>
+
+<!-- ======================= CHRONO XTREME ======================= -->
+<div class="screen hide" id="chrono-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">⚡ Chrono</div></div>
+  <div class="module-title" style="color:var(--m-chrono)">Chrono Xtreme</div>
+  <div class="module-sub">Défis minutés, zéro pitié. Le chrono ne négocie pas.</div>
+  <div class="panel">
+    <h2>Intensité</h2>
+    <div class="diff-row" id="chrono-diff-row"></div>
+    <button class="btn-start" id="chrono-start-btn" style="--mc:var(--m-chrono)">Démarrer les défis</button>
+  </div>
+</div>
+
+<div class="screen hide" id="chrono-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="chrono-progress-pill">Défi 1</div></div>
+  <div class="roi-turn" id="chrono-turn" style="color:var(--m-chrono);">Au tour de —</div>
+  <div class="progress-track"><div class="progress-fill" id="chrono-progress-fill" style="background:var(--m-chrono)"></div></div>
+  <div class="stage" style="height:340px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="chrono-card" style="cursor:default;">
+      <div class="cat-badge" id="chrono-cat-badge">DÉFI</div>
+      <div class="card-text" id="chrono-card-text" style="font-size:20px;">Défi</div>
+      <div class="card-num" id="chrono-time-label">15s</div>
+    </div>
+  </div>
+  <div class="timer-wrap hide" id="chrono-timer-wrap">
+    <div class="timer-ring" id="chrono-ring"><div class="timer-num" id="chrono-num">15</div></div>
+  </div>
+  <div id="chrono-launch-wrap">
+    <button class="btn-start" id="chrono-launch-btn" style="--mc:var(--m-chrono)">🚀 Lancer le chrono</button>
+  </div>
+  <div class="chrono-actions hide" id="chrono-actions">
+    <button class="btn-fail" id="chrono-fail-btn">❌ Raté</button>
+    <button class="btn-ok" id="chrono-ok-btn">✅ Réussi</button>
+  </div>
+</div>
+
+<div class="screen hide" id="chrono-end-screen">
+  <div class="panel end-panel">
+    <div class="wordmark" style="font-size:26px;">⏱ TEMPS ÉCOULÉ</div>
+    <p id="chrono-end-text">Paquet de défis épuisé. On relance ?</p>
+    <button class="btn-start" id="chrono-replay-btn" style="--mc:var(--m-chrono)">Rejouer</button>
+    <button class="btn-secondary" data-back="hub-screen">← Changer de jeu</button>
+  </div>
+</div>
+
+<!-- ======================= ACTION OU VÉRITÉ ======================= -->
+<div class="screen hide" id="av-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🎯 Action / Vérité</div></div>
+  <div class="module-title" style="color:var(--m-av)">Action ou Vérité</div>
+  <div class="module-sub">Tu choisis... ou tu bois. Chacun son tour.</div>
+  <div class="panel">
+    <h2>Intensité</h2>
+    <div class="diff-row" id="av-diff-row"></div>
+  </div>
+  <div class="panel">
+    <h2>Comment jouer</h2>
+    <div style="font-size:13.5px; color:var(--muted); line-height:1.7;">À ton tour, choisis <b style="color:var(--ink)">Action</b> ou <b style="color:var(--ink)">Vérité</b>. Tu peux refuser... mais ça coûte <b style="color:var(--ink)">2 gorgées</b>.</div>
+  </div>
+  <button class="btn-start" id="av-start-btn" style="--mc:var(--m-av)">Commencer</button>
+</div>
+
+<div class="screen hide" id="av-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="av-progress-pill">Tour 1</div></div>
+  <div class="roi-turn" id="av-turn" style="color:var(--m-av);">Au tour de —</div>
+  <div class="stage" style="height:360px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="av-card" style="cursor:default;">
+      <div class="cat-badge" id="av-cat-badge" style="background:var(--m-av-dk); color:var(--m-av);">À TOI DE CHOISIR</div>
+      <div class="card-text" id="av-card-text" style="justify-content:center; text-align:center; font-size:24px;">Action ou Vérité ?</div>
+      <div class="card-num" id="av-card-foot"></div>
+    </div>
+  </div>
+  <div class="chrono-actions" id="av-choice-wrap">
+    <button class="btn-fail" id="av-action-btn" style="background:var(--m-av-dk); border-color:var(--m-av); color:var(--m-av);">🎬 Action</button>
+    <button class="btn-ok" id="av-verite-btn" style="background:var(--m-susc-dk); border-color:var(--m-susc); color:var(--m-susc);">💬 Vérité</button>
+  </div>
+  <button class="btn-outline hide" id="av-next-btn" style="color:var(--m-av); border-color:var(--m-av);">Joueur suivant →</button>
+  <div class="hint" style="cursor:pointer; text-decoration:underline; margin-top:4px;" id="av-finish-btn">🏁 Terminer la partie</div>
+</div>
+
+<div class="screen hide" id="av-end-screen">
+  <div class="panel end-panel">
+    <div class="wordmark" style="font-size:30px; color:var(--m-av); -webkit-text-fill-color:var(--m-av);">🎯 PARTIE FINIE</div>
+    <p id="av-end-text">Belle partie ! La soirée continue.</p>
+    <button class="btn-start" id="av-replay-btn" style="--mc:var(--m-av)">Rejouer</button>
+    <button class="btn-secondary" data-back="hub-screen">← Changer de jeu</button>
+  </div>
+</div>
+
+<!-- ======================= LA BOMBE ======================= -->
+<div class="screen hide" id="bombe-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">💣 La Bombe</div></div>
+  <div class="module-title" style="color:var(--m-bomb)">La Bombe</div>
+  <div class="module-sub">Réponds vite, passe le téléphone. Ne sois pas le dernier à la tenir.</div>
+  <div class="panel">
+    <h2>Comment jouer</h2>
+    <div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Une catégorie s'affiche. Chacun son tour, donne <b style="color:var(--ink)">un exemple</b> puis passe le téléphone en touchant <b style="color:var(--ink)">Passé</b>. La bombe explose à un moment <b style="color:var(--ink)">aléatoire</b> : celui qui la tient à ce moment <b style="color:var(--ink)">boit 3 gorgées</b>.</div>
+  </div>
+  <button class="btn-start" id="bombe-start-btn" style="--mc:var(--m-bomb)">Allumer la mèche</button>
+</div>
+
+<div class="screen hide" id="bombe-game-screen">
+  <div class="topbar"><div class="pill quit" id="bombe-quit" data-back="hub-screen">← Quitter</div><div class="pill">💣 Ça chauffe...</div></div>
+  <div class="bomb-visual" id="bomb-visual">💣</div>
+  <div class="cat-badge" id="bombe-cat-badge" style="display:table; margin:0 auto 8px; background:var(--m-bomb-dk); color:var(--m-bomb);">CATÉGORIE</div>
+  <div class="bombe-prompt" id="bombe-prompt">Cite...</div>
+  <button class="btn-start" id="bombe-pass-btn" style="--mc:var(--m-bomb)">Passé 💣</button>
+  <div class="hint">Donne un exemple, puis passe le téléphone au voisin.</div>
+</div>
+
+<div class="screen hide" id="bombe-end-screen">
+  <div class="panel end-panel">
+    <div class="wordmark" style="font-size:38px; color:var(--m-bomb); -webkit-text-fill-color:var(--m-bomb);">💥 BOOM</div>
+    <p id="bombe-end-text">La bombe a explosé ! La personne qui tient le téléphone boit 3 gorgées.</p>
+    <button class="btn-start" id="bombe-replay-btn" style="--mc:var(--m-bomb)">Nouvelle bombe</button>
+    <button class="btn-secondary" data-back="hub-screen">← Changer de jeu</button>
+  </div>
+</div>
+
+<!-- ======================= ROULETTE DES GAGES ======================= -->
+<div class="screen hide" id="roul-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🎰 Roulette</div></div>
+  <div class="module-title" style="color:var(--m-roul)">Roulette des gages</div>
+  <div class="module-sub">On lance la roue. Elle choisit un gage... et un joueur au hasard.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Touche <b style="color:var(--ink)">Tourner</b> : la roulette défile puis s'arrête sur un gage attribué à un joueur tiré au sort. Il l'exécute... ou il boit.</div></div>
+  <button class="btn-start" id="roul-start-btn" style="--mc:var(--m-roul)">Lancer la roulette</button>
+</div>
+<div class="screen hide" id="roul-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="roul-turn-pill">—</div></div>
+  <div class="slot" id="roul-slot"><div class="slot-text" id="roul-slot-text">Prêt ?</div></div>
+  <button class="btn-start" id="roul-spin-btn" style="--mc:var(--m-roul)">🎰 Tourner</button>
+  <div class="hint">La roue désigne le gage et la victime.</div>
+  <div class="finish-link" id="roul-finish">🏁 Terminer</div>
+</div>
+
+<!-- ======================= PARANOÏA ======================= -->
+<div class="screen hide" id="para-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🤫 Paranoïa</div></div>
+  <div class="module-title" style="color:var(--m-para)">Paranoïa</div>
+  <div class="module-sub">Une question chuchotée, un prénom lâché à voix haute.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">À ton tour, lis la question <b style="color:var(--ink)">en chuchotant</b> à ton voisin. Il/elle répond <b style="color:var(--ink)">un prénom à voix haute</b> (sans que le groupe connaisse la question). Puis la pièce décide : <b style="color:var(--ink)">révélée</b> (la personne nommée boit) ou <b style="color:var(--ink)">secrète</b>.</div></div>
+  <button class="btn-start" id="para-start-btn" style="--mc:var(--m-para)">Commencer</button>
+</div>
+<div class="screen hide" id="para-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="para-turn-pill">—</div></div>
+  <div class="stage" style="height:280px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="para-card" style="cursor:default;">
+      <div class="cat-badge" id="para-badge" style="background:var(--m-para-dk); color:var(--m-para);">CHUCHOTE À TON VOISIN</div>
+      <div class="card-text" id="para-text" style="font-size:20px;">Question</div>
+    </div>
+  </div>
+  <div class="coin hide" id="para-coin">🪙</div>
+  <button class="btn-start" id="para-reveal-btn" style="--mc:var(--m-para)">🪙 Révéler ou pas ?</button>
+  <button class="btn-outline hide" id="para-next-btn" style="color:var(--m-para); border-color:var(--m-para);">Question suivante →</button>
+  <div class="hint" id="para-hint">Ton voisin répond un prénom à voix haute.</div>
+  <div class="finish-link" id="para-finish">🏁 Terminer</div>
+</div>
+
+<!-- ======================= DUEL ======================= -->
+<div class="screen hide" id="duel-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">⚔️ Duel</div></div>
+  <div class="module-title" style="color:var(--m-duel)">Duel</div>
+  <div class="module-sub">Deux joueurs tirés au sort s'affrontent sur un défi éclair.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Deux joueurs sont désignés, un défi s'affiche. Ils s'affrontent : le <b style="color:var(--ink)">perdant boit 2 gorgées</b>. Touche <b style="color:var(--ink)">Nouveau duel</b> pour enchaîner.</div></div>
+  <button class="btn-start" id="duel-start-btn" style="--mc:var(--m-duel)">Lancer un duel</button>
+</div>
+<div class="screen hide" id="duel-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill">⚔️ Duel</div></div>
+  <div class="versus">
+    <div class="vs-name" id="duel-p1">—</div>
+    <div class="vs-badge">VS</div>
+    <div class="vs-name" id="duel-p2">—</div>
+  </div>
+  <div class="stage" style="height:210px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="duel-card" style="cursor:default;">
+      <div class="cat-badge" style="background:var(--m-duel-dk); color:var(--m-duel);">LE DÉFI</div>
+      <div class="card-text" id="duel-text" style="font-size:20px; justify-content:center; text-align:center;">Défi</div>
+    </div>
+  </div>
+  <button class="btn-start" id="duel-next-btn" style="--mc:var(--m-duel)">Nouveau duel</button>
+  <div class="hint">Le perdant boit 2 gorgées.</div>
+  <div class="finish-link" id="duel-finish">🏁 Terminer</div>
+</div>
+
+<!-- ======================= LE DÉ ======================= -->
+<div class="screen hide" id="de-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🎲 Le Dé</div></div>
+  <div class="module-title" style="color:var(--m-de)">Le Dé</div>
+  <div class="module-sub">Un lancer, une règle. Rapide, rejouable, sans pitié.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Touche <b style="color:var(--ink)">Lancer le dé</b> : il roule et tombe sur une face. Chaque face déclenche une règle. Enchaîne autant que tu veux.</div></div>
+  <button class="btn-start" id="de-start-btn" style="--mc:var(--m-de)">Entrer</button>
+</div>
+<div class="screen hide" id="de-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill">🎲 Le Dé</div></div>
+  <div class="die" id="de-die">🎲</div>
+  <div class="stage" style="height:190px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="de-card" style="cursor:default;">
+      <div class="cat-badge" id="de-badge" style="background:var(--m-de-dk); color:var(--m-de);">FACE —</div>
+      <div class="card-text" id="de-text" style="font-size:20px; justify-content:center; text-align:center;">Lance le dé !</div>
+    </div>
+  </div>
+  <button class="btn-start" id="de-roll-btn" style="--mc:var(--m-de)">🎲 Lancer le dé</button>
+  <div class="finish-link" id="de-finish">🏁 Terminer</div>
+</div>
+
+<!-- ======================= ÉCRAN DE FIN COMMUN ======================= -->
+<div class="screen hide" id="end-screen">
+  <div class="panel end-panel">
+    <div class="end-emoji" id="end-emoji">🎉</div>
+    <div class="wordmark" id="end-title" style="font-size:30px;">FIN</div>
+    <p id="end-text"></p>
+    <div id="end-extra"></div>
+    <button class="btn-start" id="end-replay-btn">Rejouer</button>
+    <button class="btn-secondary" id="end-hub-btn">← Changer de jeu</button>
+  </div>
+</div>
+
+<script>
+(function(){
+
+/* ============================================================
+   ÉTAT GLOBAL PARTAGÉ
+============================================================ */
+var players = [];
+var softMode = false;
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+function fillTemplate(text, pool){
+  pool = pool || players;
+  var out = text, target = null;
+  if(out.indexOf('{j2}') !== -1 && pool.length >= 2){
+    var j = pick(pool);
+    var others = pool.filter(function(p){ return p !== j; });
+    var j2 = pick(others);
+    target = j;
+    out = out.split('{j}').join(j).split('{j2}').join(j2);
+  } else {
+    var j1 = pick(pool);
+    target = j1;
+    out = out.split('{j}').join(j1);
+  }
+  if(softMode){
+    out = out.replace(/gorgées/g,'points').replace(/gorgée/g,'point').replace(/Cascade/g,'Combo').replace(/cascade/g,'combo').replace(/cul sec/g,'gros combo');
+  }
+  return { text: out, target: target };
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.add('hide'); });
+  document.getElementById(id).classList.remove('hide');
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('[data-back]').forEach(function(el){
+  el.addEventListener('click', function(){ show(el.getAttribute('data-back')); });
+});
+
+/* ---- Écran de fin commun ---- */
+var _endReplay = null;
+function gameOver(cfg){
+  cfg = cfg || {};
+  document.getElementById('end-emoji').textContent = cfg.emoji || '🎉';
+  var t = document.getElementById('end-title');
+  t.textContent = cfg.title || 'FIN';
+  t.style.color = cfg.color || 'var(--sunset-1)';
+  t.style.webkitTextFillColor = cfg.color || 'var(--sunset-1)';
+  document.getElementById('end-text').innerHTML = cfg.text || '';
+  document.getElementById('end-extra').innerHTML = cfg.extra || '';
+  var rb = document.getElementById('end-replay-btn');
+  rb.textContent = cfg.replayLabel || 'Rejouer';
+  rb.style.setProperty('--mc', cfg.color || 'var(--sunset-1)');
+  rb.style.display = cfg.onReplay ? '' : 'none';
+  _endReplay = cfg.onReplay || null;
+  show('end-screen');
+}
+document.getElementById('end-replay-btn').onclick = function(){ if(_endReplay) _endReplay(); };
+document.getElementById('end-hub-btn').onclick = function(){ show('hub-screen'); };
+
+/* ---- Joueurs (hub) ---- */
+var playerInput = document.getElementById('player-input');
+var addBtn = document.getElementById('add-btn');
+var hubChips = document.getElementById('hub-chips');
+var hubEmptyHint = document.getElementById('hub-empty-hint');
+var playerCount = document.getElementById('player-count');
+var hubSoftToggle = document.getElementById('hub-soft-toggle');
+
+function renderHubChips(){
+  hubChips.innerHTML = '';
+  players.forEach(function(name, i){
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    var span = document.createElement('span'); span.textContent = name;
+    var btn = document.createElement('button'); btn.textContent = '×';
+    btn.onclick = function(){ players.splice(i,1); renderHubChips(); renderModuleList(); };
+    chip.appendChild(span); chip.appendChild(btn);
+    hubChips.appendChild(chip);
+  });
+  hubEmptyHint.style.display = players.length ? 'none' : 'block';
+  playerCount.textContent = players.length;
+  renderModuleList();
+}
+function addPlayer(){
+  var name = playerInput.value.trim();
+  if(!name) return;
+  if(players.indexOf(name) !== -1){ playerInput.value=''; return; }
+  players.push(name);
+  playerInput.value = '';
+  renderHubChips();
+  playerInput.focus();
+}
+addBtn.onclick = addPlayer;
+playerInput.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); addPlayer(); } });
+hubSoftToggle.onclick = function(){ softMode = !softMode; hubSoftToggle.classList.toggle('on', softMode); };
+
+/* ---- Modules (hub grid) ---- */
+var MODULES = [
+  { id:'picolo', name:'Picolo', icon:'🃏', tag:'Le classique repensé — 8 modes, 200+ cartes.', color:'--m-picolo', dk:'--m-picolo-dk', min:2, screen:'picolo-setup-screen' },
+  { id:'roi', name:'Roi de la soirée', icon:'👑', tag:'Le jeu de cartes culte, 52 règles et un verre au centre.', color:'--m-roi', dk:'--m-roi-dk', min:2, screen:'roi-setup-screen' },
+  { id:'susceptible', name:'Le plus susceptible', icon:'🫵', tag:'On vote, un boulet est désigné, il boit.', color:'--m-susc', dk:'--m-susc-dk', min:3, screen:'susc-setup-screen' },
+  { id:'chrono', name:'Chrono Xtreme', icon:'⚡', tag:'Défis minutés, zéro pitié.', color:'--m-chrono', dk:'--m-chrono-dk', min:2, screen:'chrono-setup-screen' },
+  { id:'av', name:'Action ou Vérité', icon:'🎯', tag:'Action ou vérité, tu choisis... ou tu bois.', color:'--m-av', dk:'--m-av-dk', min:2, screen:'av-setup-screen' },
+  { id:'bombe', name:'La Bombe', icon:'💣', tag:'Passe le tel, réponds vite. Le dernier à la tenir boit.', color:'--m-bomb', dk:'--m-bomb-dk', min:3, screen:'bombe-setup-screen' },
+  { id:'roulette', name:'Roulette des gages', icon:'🎰', tag:'On lance la roue : un gage, une victime au hasard.', color:'--m-roul', dk:'--m-roul-dk', min:2, screen:'roul-setup-screen' },
+  { id:'paranoia', name:'Paranoïa', icon:'🤫', tag:'Une question chuchotée, un prénom lâché. Révélée ou pas ?', color:'--m-para', dk:'--m-para-dk', min:3, screen:'para-setup-screen' },
+  { id:'duel', name:'Duel', icon:'⚔️', tag:'Deux joueurs, un défi, un perdant qui boit.', color:'--m-duel', dk:'--m-duel-dk', min:2, screen:'duel-setup-screen' },
+  { id:'de', name:'Le Dé', icon:'🎲', tag:'Un lancer, une règle. Simple et sans pitié.', color:'--m-de', dk:'--m-de-dk', min:2, screen:'de-setup-screen' }
+];
+var moduleListEl = document.getElementById('module-list');
+function renderModuleList(){
+  moduleListEl.innerHTML = '';
+  MODULES.forEach(function(m, idx){
+    var locked = players.length < m.min;
+    var el = document.createElement('div');
+    el.className = 'module-card' + (locked ? ' locked' : '');
+    el.style.setProperty('--mc', 'var('+m.color+')');
+    el.style.setProperty('--mc-dk', 'var('+m.dk+')');
+    el.style.setProperty('--fd', (idx*0.6)+'s');
+    el.innerHTML =
+      '<div class="module-icon">'+m.icon+'</div>'+
+      '<div class="module-info">'+
+        '<div class="module-name">'+m.name+'</div>'+
+        '<div class="module-tag">'+m.tag+'</div>'+
+        '<div class="module-min">'+(locked ? ('Encore '+(m.min-players.length)+' joueur(s) min.') : (m.min+' joueurs min.'))+'</div>'+
+      '</div>'+
+      '<div class="module-arrow">'+(locked ? '🔒' : '→')+'</div>';
+    el.onclick = function(){ if(!locked) openModule(m); };
+    moduleListEl.appendChild(el);
+  });
+}
+function openModule(m){
+  show(m.screen);
+  if(m.id === 'picolo') picoloOnOpen();
+  if(m.id === 'susceptible') suscOnOpen();
+  if(m.id === 'chrono') chronoOnOpen();
+  if(m.id === 'av') avOnOpen();
+}
+
+/* ============================================================
+   MODULE 1 — PICOLO
+============================================================ */
+(function(){
+  var CATS = {
+    gorgee:{label:"Gorgée",color:"var(--c-gorgee)",dark:"var(--c-gorgee-dk)"},
+    cascade:{label:"Cascade",color:"var(--c-cascade)",dark:"var(--c-cascade-dk)"},
+    regle:{label:"Règle",color:"var(--c-regle)",dark:"var(--c-regle-dk)"},
+    action:{label:"Action",color:"var(--c-action)",dark:"var(--c-action-dk)"},
+    duel:{label:"Duel",color:"var(--c-duel)",dark:"var(--c-duel-dk)"},
+    verite:{label:"Vérité",color:"var(--c-verite)",dark:"var(--c-verite-dk)"},
+    distribue:{label:"Distribue",color:"var(--c-distribue)",dark:"var(--c-distribue-dk)"},
+    gage:{label:"Gage",color:"var(--c-gage)",dark:"var(--c-gage-dk)"},
+    chrono:{label:"Chrono",color:"var(--c-chrono)",dark:"var(--c-chrono-dk)"},
+    jamais:{label:"Jamais",color:"var(--c-jamais)",dark:"var(--c-jamais-dk)"},
+    vote:{label:"Vote",color:"var(--c-vote)",dark:"var(--c-vote-dk)"},
+    anecdote:{label:"Anecdote",color:"var(--c-anecdote)",dark:"var(--c-anecdote-dk)"},
+    impro:{label:"Improbable",color:"var(--c-impro)",dark:"var(--c-impro-dk)"}
+  };
+
+  var CARDS = [
+    {c:"gorgee", t:"{j} boit une gorgée, sans raison particulière."},
+    {c:"gorgee", t:"Le dernier à avoir touché son téléphone boit 2 gorgées."},
+    {c:"gorgee", t:"Tout le monde boit une gorgée en même temps."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque bague qu'il/elle porte."},
+    {c:"gorgee", t:"{j} choisit une personne qui boit 2 gorgées avec lui/elle."},
+    {c:"cascade", t:"Cascade ! {j} commence à boire, tout le monde suit dans l'ordre, personne ne s'arrête avant que {j} ait fini."},
+    {c:"cascade", t:"Cascade à l'envers : {j} boit en dernier, il/elle décide quand ça s'arrête."},
+    {c:"regle", t:"Nouvelle règle : interdiction de dire le prénom de son voisin. Erreur = 2 gorgées."},
+    {c:"regle", t:"Nouvelle règle : plus personne ne peut poser son verre sur la table. Oubli = gorgée."},
+    {c:"regle", t:"Nouvelle règle : on boit uniquement de la main gauche jusqu'à la prochaine carte règle."},
+    {c:"regle", t:"Nouvelle règle : interdiction de pointer du doigt. Chaque infraction coûte une gorgée."},
+    {c:"action", t:"{j} doit imiter un animal de son choix jusqu'à ce qu'un joueur devine lequel."},
+    {c:"action", t:"{j} raconte une blague. Si personne ne rit, {j} boit 2 gorgées."},
+    {c:"action", t:"{j} fait 10 secondes de danse improvisée, debout, maintenant."},
+    {c:"action", t:"{j} doit parler avec un accent au choix jusqu'à son prochain tour."},
+    {c:"action", t:"{j} échange de place avec la personne la plus éloignée de lui/elle."},
+    {c:"action", t:"{j} doit faire un compliment sincère à la personne à sa droite."},
+    {c:"duel", t:"Duel de pouce ! {j} affronte {j2}, le perdant boit 2 gorgées."},
+    {c:"duel", t:"{j} et {j2} font un rapide pierre-feuille-ciseaux en 3 manches, le perdant boit."},
+    {c:"duel", t:"{j} et {j2} se fixent sans rire. Le premier qui craque boit."},
+    {c:"duel", t:"{j} défie {j2} sur qui peut tenir le plus longtemps sans cligner des yeux. Perdant boit."},
+    {c:"verite", t:"{j} répond honnêtement : quel est ton pire mensonge à un ami ?"},
+    {c:"verite", t:"{j} répond honnêtement : quelle est la chose la plus gênante que tu aies faite ce mois-ci ?"},
+    {c:"verite", t:"{j} répond honnêtement : à qui dans la pièce ferais-tu le plus confiance pour un secret ?"},
+    {c:"verite", t:"{j} répond honnêtement, ou boit 3 gorgées s'il/elle refuse : quel est ton plus grand regret récent ?"},
+    {c:"distribue", t:"{j} distribue 3 gorgées comme il/elle le souhaite."},
+    {c:"distribue", t:"{j} distribue une gorgée à la personne à sa gauche."},
+    {c:"distribue", t:"{j} distribue 2 gorgées à quelqu'un qu'il/elle n'a pas encore désigné ce soir."},
+    {c:"distribue", t:"{j} répartit 4 gorgées entre deux personnes de son choix."},
+    {c:"gage", t:"{j} doit tenir un accessoire imaginaire (chapeau, lunettes...) pendant 3 tours, sous peine de gorgée."},
+    {c:"gage", t:"{j} doit parler uniquement en chuchotant pendant 2 tours."},
+    {c:"gage", t:"{j} doit garder les bras croisés jusqu'à son prochain tour, sous peine de gorgée."},
+    {c:"gage", t:"{j} doit terminer chaque phrase par 'et voilà' pendant 3 tours."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque année de plus que {j2}."},
+    {c:"regle", t:"Nouvelle règle : interdiction de rire les dents visibles. Erreur = gorgée."},
+    {c:"action", t:"{j} doit raconter en 15 secondes sa pire soirée, sans respirer... enfin presque."},
+    {c:"verite", t:"{j} répond : quelle appli regardes-tu le plus en cachette ?"},
+    {c:"gage", t:"{j} doit s'exprimer uniquement par gestes jusqu'à son prochain tour."},
+    {c:"duel", t:"{j} et {j2} bras de fer verbal : chacun doit convaincre l'autre en 10 secondes. Le groupe désigne le perdant, qui boit."},
+    {c:"distribue", t:"{j} distribue une gorgée à la personne qui a le moins parlé depuis le début."},
+    {c:"cascade", t:"Cascade collective : tout le monde boit en même temps, le dernier arrêté distribue 2 gorgées."},
+    {c:"gorgee", t:"{j} boit autant de gorgées que de messages non lus sur son téléphone (max 3)."},
+    {c:"action", t:"{j} doit inventer un surnom pour {j2}, utilisé pour le reste de la partie."},
+    {c:"regle", t:"Nouvelle règle : dire 'santé' avant chaque gorgée, oubli = gorgée supplémentaire."},
+    {c:"verite", t:"{j} répond : c'est quoi ta théorie la plus bizarre sur quelqu'un dans cette pièce ?"},
+    {c:"gage", t:"{j} doit s'asseoir par terre jusqu'à ce qu'une carte Action ou Règle soit tirée."},
+    {c:"gorgee", t:"{j} boit une gorgée, {j2} boit aussi par solidarité."},
+    {c:"distribue", t:"{j} distribue 2 gorgées à la personne à sa droite."},
+    {c:"action", t:"{j} doit chanter le refrain d'une chanson au choix de {j2}."},
+    {c:"chrono", t:"{j} a 20 secondes pour citer 5 marques de voitures. Échec = 2 gorgées."},
+    {c:"chrono", t:"{j} a 15 secondes pour citer 3 films avec {j2}. Échec = gorgée."},
+    {c:"chrono", t:"{j} a 10 secondes pour tenir en équilibre sur un pied. Échec = gorgée."},
+    {c:"chrono", t:"{j} a 20 secondes pour faire deviner un mot par mimes à {j2}. Échec = 2 gorgées chacun."},
+    {c:"chrono", t:"{j} a 15 secondes pour réciter l'alphabet à l'envers. Échec = gorgée."},
+    {c:"chrono", t:"{j} a 10 secondes pour trouver un mot qui rime avec 'soirée'. Échec = gorgée."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque paire de chaussures qu'il/elle possède au-dessus de 5 (estimation)."},
+    {c:"gorgee", t:"{j} boit une gorgée s'il/elle n'a pas fait de sport cette semaine."},
+    {c:"regle", t:"Nouvelle règle : interdiction de dire 'oui' ou 'non'. Erreur = gorgée."},
+    {c:"regle", t:"Nouvelle règle : chaque gorgée doit être accompagnée d'un bruit de trinquette. Oubli = gorgée en plus."},
+    {c:"action", t:"{j} doit raconter son rêve le plus bizarre en 20 secondes."},
+    {c:"action", t:"{j} doit deviner l'objet que {j2} tient imaginairement dans sa main, en 3 essais."},
+    {c:"duel", t:"{j} et {j2} : bataille de regards fixes pendant 10 secondes sans ciller. Le perdant boit."},
+    {c:"verite", t:"{j} répond : quel est le compliment qu'on te fait le plus souvent ?"},
+    {c:"verite", t:"{j} répond : si tu devais échanger de vie avec quelqu'un ici pour une journée, qui choisirais-tu ?"},
+    {c:"distribue", t:"{j} distribue 2 gorgées à la personne qui a le sourire le plus contagieux ce soir."},
+    {c:"gage", t:"{j} doit parler comme un présentateur météo pendant 2 tours."},
+    {c:"jamais", t:"Jamais je n'ai jamais menti à mes parents sur où j'étais. Ceux qui l'ont fait boivent."},
+    {c:"jamais", t:"Jamais je n'ai jamais pleuré devant un film. Ceux qui l'ont fait boivent."},
+    {c:"jamais", t:"Jamais je n'ai jamais envoyé un message au mauvais destinataire. Ceux qui l'ont fait boivent."},
+    {c:"jamais", t:"Jamais je n'ai jamais fait semblant d'être malade pour éviter quelque chose. Ceux qui l'ont fait boivent."},
+    {c:"jamais", t:"Jamais je n'ai jamais stalké quelqu'un sur les réseaux sociaux. Ceux qui l'ont fait boivent."},
+    {c:"jamais", t:"Jamais je n'ai jamais menti sur mon âge. Ceux qui l'ont fait boivent."},
+    {c:"jamais", t:"Jamais je n'ai jamais fait tomber mon téléphone dans les toilettes. Ceux qui l'ont fait boivent."},
+    {c:"jamais", t:"Jamais je n'ai jamais séché un cours ou une réunion pour dormir. Ceux qui l'ont fait boivent."},
+    {c:"vote", t:"Qui est le plus susceptible de devenir célèbre ? Au signal, tout le monde pointe du doigt. La personne la plus désignée boit."},
+    {c:"vote", t:"Qui est le plus susceptible d'oublier l'anniversaire d'un proche ? Au signal, tout le monde pointe du doigt. La personne la plus désignée boit."},
+    {c:"vote", t:"Qui est le plus susceptible de survivre seul(e) sur une île déserte ? Au signal, tout le monde pointe du doigt. La personne la plus désignée boit."},
+    {c:"vote", t:"Qui est le plus susceptible d'arriver en retard à son propre mariage ? Au signal, tout le monde pointe du doigt. La personne la plus désignée boit."},
+    {c:"vote", t:"Qui est le plus susceptible de craquer en premier dans un jeu de survie ? Au signal, tout le monde pointe du doigt. La personne la plus désignée boit."},
+    {c:"vote", t:"Qui est le plus susceptible de rire au pire moment ? Au signal, tout le monde pointe du doigt. La personne la plus désignée boit."},
+    {c:"regle", t:"{j} devient Roi/Reine de la soirée : il/elle peut donner un ordre (raisonnable) par tour jusqu'à la prochaine carte Règle."},
+    {c:"regle", t:"{j} devient le/la Distributeur/Distributrice : à chaque carte Gorgée jusqu'à la prochaine Règle, c'est {j} qui décide qui boit à sa place."},
+    {c:"anecdote", t:"{j} raconte le souvenir le plus drôle qu'il/elle a avec {j2}."},
+    {c:"anecdote", t:"{j} raconte sa pire honte d'enfance."},
+    {c:"anecdote", t:"{j} raconte comment s'est passée sa dernière rencontre avec un inconnu."},
+    {c:"anecdote", t:"{j} raconte le moment où il/elle a eu le plus peur dans sa vie."},
+    {c:"anecdote", t:"{j} raconte une anecdote sur ses vacances les plus mémorables."},
+    {c:"anecdote", t:"{j} raconte la pire excuse qu'il/elle ait jamais donnée."},
+    {c:"anecdote", t:"{j} raconte un souvenir marquant de son premier travail ou premier job d'été."},
+    {c:"anecdote", t:"{j} raconte une fois où il/elle s'est perdu(e) quelque part."},
+    {c:"impro", t:"{j} doit vendre un objet imaginaire au groupe en 15 secondes, sinon boit."},
+    {c:"impro", t:"Si une bombe explosait dans 10 secondes, {j} choisit qui il/elle sauve en premier. Le non-sauvé boit."},
+    {c:"impro", t:"{j} invente un super-pouvoir totalement inutile et le mime."},
+    {c:"impro", t:"{j} doit convaincre le groupe qu'il/elle est un extraterrestre en 15 secondes."},
+    {c:"impro", t:"{j} raconte comment il/elle imagine sa vie dans 10 ans, en 20 secondes chrono."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque appli de rencontre qu'il/elle a déjà eue."},
+    {c:"gage", t:"{j} doit finir la soirée avec un objet en équilibre sur la tête à chaque gorgée."},
+    {c:"action", t:"{j} doit refaire la voix d'un personnage de dessin animé pendant 2 tours."}
+  ];
+
+  var HOT_CARDS = [
+    {c:"verite", t:"{j} répond honnêtement : quelle est la personne dans la pièce que tu trouves la plus séduisante ?"},
+    {c:"verite", t:"{j} répond honnêtement : c'est quoi ton pire moment de honte amoureuse ?"},
+    {c:"verite", t:"{j} répond honnêtement : as-tu déjà eu le béguin pour quelqu'un ici ?"},
+    {c:"gage", t:"{j} doit faire un compliment très exagéré à {j2}, façon présentateur télé."},
+    {c:"gage", t:"{j} doit imiter la façon de parler de {j2} pendant 3 tours."},
+    {c:"duel", t:"{j} et {j2} : chacun doit deviner un secret de l'autre. Celui qui se trompe boit 3 gorgées."},
+    {c:"distribue", t:"{j} distribue 4 gorgées, mais doit en boire 1 lui/elle-même."},
+    {c:"cascade", t:"Double cascade : {j} et {j2} boivent en même temps, le premier qui s'arrête distribue 3 gorgées."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque ex mentionné ce soir (minimum 1)."},
+    {c:"action", t:"{j} doit révéler le dernier message qu'il/elle a envoyé (ou boire 3 gorgées)."},
+    {c:"duel", t:"{j} et {j2} s'affrontent au bras de fer. Le perdant boit 3 gorgées et distribue 1 gorgée."},
+    {c:"gage", t:"{j} doit rester assis sur les genoux de {j2} jusqu'à la prochaine carte Action."},
+    {c:"verite", t:"{j} répond honnêtement : quel est le mensonge que tu racontes le plus souvent ?"},
+    {c:"gorgee", t:"{j} cul sec s'il/elle n'a jamais fait le premier pas en amour, sinon distribue 2 gorgées."},
+    {c:"distribue", t:"{j} choisit un couple présent ou imaginaire dans le groupe qui boit chacun 2 gorgées."},
+    {c:"verite", t:"{j} répond honnêtement : c'est quoi le truc le plus embarrassant dans ton historique de recherche ?"},
+    {c:"duel", t:"{j} et {j2} : chacun raconte une rumeur sur l'autre. Le groupe vote celle qui est la plus crédible, le perdant boit."},
+    {c:"gage", t:"{j} doit envoyer un message à {j2} disant simplement 'tu me manques', devant tout le monde."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque relation qui a duré moins de 3 mois."},
+    {c:"chrono", t:"{j} a 15 secondes pour convaincre le groupe qu'il/elle mérite de ne pas boire. Vote du groupe."},
+    {c:"verite", t:"{j} répond honnêtement : quel est ton type de personne idéal en une phrase ?"},
+    {c:"impro", t:"{j} et {j2} doivent se raconter mutuellement leur pire date, chacun boit s'il n'en a pas."}
+  ];
+
+  var EXTREME_CARDS = [
+    {c:"gorgee", t:"{j} cul sec, sans négocier."},
+    {c:"cascade", t:"Triple cascade : {j}, {j2} et une personne au choix boivent ensemble jusqu'à ce que {j} s'arrête."},
+    {c:"verite", t:"{j} répond honnêtement ou boit cul sec : quel est ton secret le mieux gardé ce mois-ci ?"},
+    {c:"duel", t:"{j} et {j2} : le perdant du prochain duel improvisé (au choix du groupe) boit cul sec."},
+    {c:"distribue", t:"{j} distribue 5 gorgées en une seule fois, à répartir comme il/elle veut."},
+    {c:"gage", t:"{j} doit obéir à un ordre de {j2} (raisonnable) dans les 30 secondes, sous peine de cul sec."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque personne présente qu'il/elle connaît depuis moins d'un an."},
+    {c:"verite", t:"{j} répond honnêtement : quelle est la dernière chose que tu as regretté avoir dite ?"},
+    {c:"duel", t:"{j} et {j2} s'affrontent en mimant sans parler pendant 15 secondes, le groupe désigne le perdant qui boit cul sec."},
+    {c:"distribue", t:"{j} distribue 3 gorgées à la personne assise en face de lui/elle."},
+    {c:"gage", t:"{j} doit tenir une pose ridicule jusqu'à la fin du prochain tour, sous peine de cul sec."},
+    {c:"cascade", t:"Cascade finale : tout le monde boit en même temps, les 2 derniers arrêtés boivent une gorgée de plus."},
+    {c:"chrono", t:"{j} a 10 secondes pour finir son verre, chrono lancé maintenant."},
+    {c:"distribue", t:"{j} distribue un cul sec à la personne de son choix."},
+    {c:"gorgee", t:"{j} cul sec si le groupe estime qu'il/elle a menti à la dernière carte Vérité."},
+    {c:"duel", t:"{j} et {j2} : le premier à trouver un point faible drôle chez l'autre gagne, le perdant boit cul sec."}
+  ];
+
+  var DUO_CARDS = [
+    {c:"verite", t:"{j} pose une question à {j2}. S'il/elle refuse de répondre, {j2} boit."},
+    {c:"duel", t:"{j} et {j2} : pierre-feuille-ciseaux en 3 manches, le perdant boit 2 gorgées."},
+    {c:"gorgee", t:"{j} et {j2} boivent chacun une gorgée en se regardant dans les yeux."},
+    {c:"action", t:"{j} doit deviner la couleur préférée de {j2}. Faux = {j} boit."},
+    {c:"gage", t:"{j} doit imiter {j2} pendant 2 tours, sous peine de gorgée."},
+    {c:"verite", t:"{j2} répond honnêtement : quel est le trait de personnalité de {j} qu'il/elle préfère ?"},
+    {c:"duel", t:"{j} et {j2} : bras de fer, le perdant boit et doit féliciter l'autre."},
+    {c:"gorgee", t:"{j} boit une gorgée pour chaque fois que {j2} l'a fait rire ce soir."},
+    {c:"action", t:"{j} et {j2} doivent trouver 3 points communs en 20 secondes, sinon les deux boivent."},
+    {c:"gage", t:"{j} doit raconter à {j2} un souvenir marquant en 20 secondes."},
+    {c:"verite", t:"{j} répond honnêtement à {j2} : quelle est ta plus grande qualité selon toi ?"},
+    {c:"duel", t:"{j} et {j2} : qui tient le plus longtemps sans sourire ? Le perdant boit."},
+    {c:"gorgee", t:"{j2} choisit : {j} boit une gorgée ou fait un compliment sincère."},
+    {c:"action", t:"{j} et {j2} trinquent et racontent chacun un souvenir en commun."},
+    {c:"gage", t:"{j} doit deviner ce que {j2} a mangé aujourd'hui. Faux = {j} boit."}
+  ];
+
+  var TEAM_CARDS = [
+    {c:"duel", t:"{j} affronte {j2} sur un pierre-feuille-ciseaux en 3 manches. L'équipe perdante boit tous ensemble."},
+    {c:"chrono", t:"{j} a 30 secondes pour citer un maximum de capitales. Un membre de {j2} valide. Échec = l'équipe {j} boit."},
+    {c:"verite", t:"Un membre de {j} doit deviner une info sur un membre de {j2} désigné au hasard. Faux = l'équipe {j} boit."},
+    {c:"action", t:"{j} désigne un membre pour mimer un métier, {j2} doit deviner en 20 secondes. Échec = l'équipe {j2} boit."},
+    {c:"gorgee", t:"Tous les membres de {j} boivent une gorgée en même temps."},
+    {c:"distribue", t:"{j} distribue 3 gorgées à répartir dans l'équipe {j2}."},
+    {c:"duel", t:"Bras de fer entre un volontaire de {j} et un de {j2}. L'équipe du perdant boit."},
+    {c:"gage", t:"{j} doit inventer un cri de guerre pour son équipe, répété par tous ses membres."},
+    {c:"chrono", t:"{j} a 20 secondes pour faire deviner un mot par mimes à son équipe. Échec = l'équipe {j} boit."},
+    {c:"verite", t:"Un membre de {j2} choisit une question difficile pour un membre de {j}. Refus = l'équipe {j} boit."},
+    {c:"gorgee", t:"L'équipe {j} boit une gorgée pour chaque manche perdue jusqu'ici."},
+    {c:"action", t:"{j} et {j2} s'affrontent en chant a cappella improvisé. Le groupe désigne le perdant, qui boit."},
+    {c:"distribue", t:"{j} gagne le point : l'équipe {j2} boit 2 gorgées chacun."},
+    {c:"duel", t:"Un volontaire de {j} et un de {j2} font une bataille de regards. L'équipe du perdant boit."},
+    {c:"gage", t:"{j} doit trouver un surnom pour l'équipe {j2}, utilisé pour le reste de la partie."}
+  ];
+
+  var LIFE_CARDS = [
+    {c:"duel", t:"{j} et {j2} : pierre-feuille-ciseaux en 3 manches, le perdant perd une vie."},
+    {c:"duel", t:"{j} et {j2} : bras de fer, le perdant perd une vie."},
+    {c:"chrono", t:"{j} a 15 secondes pour citer 5 pays. Échec = perd une vie."},
+    {c:"chrono", t:"{j} a 10 secondes pour tenir en équilibre sur un pied. Échec = perd une vie."},
+    {c:"verite", t:"{j} répond honnêtement ou perd une vie : quel est ton plus grand regret récent ?"},
+    {c:"action", t:"{j} raconte une blague. Si personne ne rit, {j} perd une vie."},
+    {c:"duel", t:"{j} et {j2} se fixent sans rire. Le premier qui craque perd une vie."},
+    {c:"action", t:"{j} doit deviner l'objet imaginaire que {j2} mime, en 3 essais. Échec = {j} perd une vie."},
+    {c:"gage", t:"{j} doit tenir une pose ridicule jusqu'au prochain tour, sous peine de perdre une vie."},
+    {c:"duel", t:"{j} et {j2} : mimes sans parler pendant 15 secondes, le groupe désigne le perdant qui perd une vie."},
+    {c:"chrono", t:"{j} a 20 secondes pour faire deviner un mot par mimes à {j2}. Échec = les deux perdent une vie."},
+    {c:"verite", t:"{j} répond : quelle est la chose la plus gênante que tu aies faite ce mois-ci ? Refus = perd une vie."},
+    {c:"action", t:"{j} doit improviser 10 secondes de danse. Le groupe vote : raté = perd une vie."},
+    {c:"duel", t:"{j} et {j2} : qui tient le plus longtemps sans sourire ? Le perdant perd une vie."}
+  ];
+
+  var MODES = {
+    classique:{label:"Classique",sub:"Le mix original, toutes catégories"},
+    chaud:{label:"Chaud",sub:"Cartes plus osées, plus de défis"},
+    extreme:{label:"Extrême",sub:"Cul secs et défis corsés"},
+    rapide:{label:"Rapide",sub:"20 cartes, partie éclair"},
+    marathon:{label:"Marathon",sub:"Paquet géant pour une longue soirée"},
+    duo:{label:"Duo",sub:"Pensé pour jouer à exactement 2"},
+    equipes:{label:"Équipes",sub:"2 équipes s'affrontent, min. 4 joueurs"},
+    elimination:{label:"Élimination",sub:"3 vies chacun, dernier debout gagne"}
+  };
+  var MODE_ORDER = ["classique","chaud","extreme","rapide","marathon","duo","equipes","elimination"];
+
+  var currentMode = "classique";
+  var deck = [], deckIndex = 0, teams = null, lives = {}, lastTarget = null, lastAnimating = false;
+  var activeCats = {};
+  Object.keys(CATS).forEach(function(k){ activeCats[k] = true; });
+
+  var modeGrid = document.getElementById('picolo-mode-grid');
+  var catFilterEl = document.getElementById('picolo-cat-filter');
+  var startBtn = document.getElementById('picolo-start-btn');
+
+  function renderCatFilter(){
+    catFilterEl.innerHTML = '';
+    Object.keys(CATS).forEach(function(key){
+      var cat = CATS[key]; var on = activeCats[key];
+      var chip = document.createElement('div');
+      chip.className = 'cat-chip' + (on ? '' : ' off');
+      chip.textContent = cat.label;
+      if(on){ chip.style.background = cat.dark; chip.style.color = cat.color; chip.style.borderColor = cat.dark; }
+      chip.onclick = function(){ activeCats[key] = !activeCats[key]; renderCatFilter(); };
+      catFilterEl.appendChild(chip);
+    });
+  }
+  function renderModes(){
+    modeGrid.innerHTML = '';
+    MODE_ORDER.forEach(function(key){
+      var m = MODES[key];
+      var el = document.createElement('div');
+      el.className = 'mode-card' + (currentMode === key ? ' selected' : '');
+      el.innerHTML = '<div><div class="mode-name">'+m.label+'</div><div class="mode-sub">'+m.sub+'</div></div><div class="mode-check"></div>';
+      el.onclick = function(){ currentMode = key; renderModes(); };
+      modeGrid.appendChild(el);
+    });
+  }
+
+  var cardEl = document.getElementById('picolo-card');
+  var catBadge = document.getElementById('picolo-cat-badge');
+  var catLabelEl = document.getElementById('picolo-cat-label');
+  var cardText = document.getElementById('picolo-card-text');
+  var cardNum = document.getElementById('picolo-card-num');
+  var progressPill = document.getElementById('picolo-progress-pill');
+  var teamsRecapEl = document.getElementById('picolo-teams-recap');
+  var livesBarEl = document.getElementById('picolo-lives-bar');
+  var lifeBtn = document.getElementById('picolo-life-btn');
+  var endTextEl = document.getElementById('picolo-end-text');
+  var hintTextEl = document.getElementById('picolo-hint-text');
+
+  function withLevel(list, level){ return list.map(function(e){ return {c:e.c,t:e.t,level:level}; }); }
+  function filterByCat(list){
+    var atLeastOne = Object.keys(activeCats).some(function(k){ return activeCats[k]; });
+    if(!atLeastOne) return list;
+    return list.filter(function(e){ return activeCats[e.c]; });
+  }
+  function shuffledDeck(){
+    var pool;
+    if(currentMode === 'duo') pool = withLevel(DUO_CARDS, 2);
+    else if(currentMode === 'equipes') pool = withLevel(TEAM_CARDS, 2);
+    else if(currentMode === 'elimination') pool = filterByCat(withLevel(CARDS,1).concat(withLevel(HOT_CARDS,2)).concat(withLevel(LIFE_CARDS,2)));
+    else if(currentMode === 'chaud') pool = filterByCat(withLevel(CARDS,1).concat(withLevel(HOT_CARDS,2)));
+    else if(currentMode === 'extreme') pool = filterByCat(withLevel(CARDS,1).concat(withLevel(HOT_CARDS,2)).concat(withLevel(EXTREME_CARDS,3)));
+    else if(currentMode === 'marathon') pool = filterByCat(withLevel(CARDS,1).concat(withLevel(HOT_CARDS,2)).concat(withLevel(EXTREME_CARDS,3)));
+    else pool = filterByCat(withLevel(CARDS,1));
+    if(pool.length === 0) pool = withLevel(CARDS,1);
+    pool = shuffle(pool);
+    if(currentMode === 'rapide') pool = pool.slice(0,20);
+    return pool;
+  }
+  function setupTeams(){
+    var shuffled = shuffle(players);
+    var mid = Math.ceil(shuffled.length/2);
+    teams = { bleue: shuffled.slice(0,mid), rouge: shuffled.slice(mid) };
+    teamsRecapEl.innerHTML = '🔵 <b>Équipe Bleue</b> : '+teams.bleue.join(', ')+' &nbsp;·&nbsp; 🔴 <b>Équipe Rouge</b> : '+teams.rouge.join(', ');
+    teamsRecapEl.classList.remove('hide');
+  }
+  function namesPoolForMode(){
+    if(currentMode === 'equipes') return ['Équipe Bleue','Équipe Rouge'];
+    if(currentMode === 'elimination'){
+      var active = players.filter(function(p){ return lives[p] > 0; });
+      return active.length ? active : players;
+    }
+    return players;
+  }
+  function setupLives(){
+    lives = {};
+    players.forEach(function(p){ lives[p] = 3; });
+    renderLivesBar();
+    livesBarEl.classList.remove('hide');
+    lifeBtn.classList.remove('hide');
+  }
+  function renderLivesBar(){
+    livesBarEl.innerHTML = '';
+    players.forEach(function(p){
+      var chip = document.createElement('div');
+      var alive = lives[p] > 0;
+      chip.className = 'life-chip' + (alive ? '' : ' out');
+      chip.textContent = p + ' ' + (alive ? '❤️'.repeat(lives[p]) : '☠️');
+      livesBarEl.appendChild(chip);
+    });
+  }
+  function checkEliminationWinner(){
+    var active = players.filter(function(p){ return lives[p] > 0; });
+    if(active.length <= 1){
+      show('picolo-end-screen');
+      endTextEl.textContent = active.length === 1 ? active[0]+' remporte la partie !' : 'Partie terminée !';
+      return true;
+    }
+    return false;
+  }
+  lifeBtn.onclick = function(){
+    if(currentMode !== 'elimination' || !lastTarget) return;
+    if(lives[lastTarget] === undefined) return;
+    lives[lastTarget] = Math.max(0, lives[lastTarget]-1);
+    renderLivesBar();
+    if(!checkEliminationWinner()) nextCard();
+  };
+  function showCard(){
+    if(deckIndex >= deck.length){
+      show('picolo-end-screen');
+      endTextEl.textContent = 'Le paquet est vide. On relance un tour ?';
+      return;
+    }
+    var entry = deck[deckIndex];
+    var cat = CATS[entry.c];
+    catLabelEl.textContent = cat.label;
+    catBadge.style.background = cat.dark;
+    catBadge.style.color = cat.color;
+    var filled = fillTemplate(entry.t, namesPoolForMode());
+    cardText.textContent = filled.text;
+    lastTarget = filled.target;
+    cardNum.textContent = (deckIndex+1)+' / '+deck.length;
+    progressPill.textContent = 'Carte '+(deckIndex+1);
+    hintTextEl.textContent = currentMode === 'elimination' ? 'Touche la carte pour continuer, ou signale qui perd une vie' : 'Touche la carte pour continuer';
+  }
+  function nextCard(){
+    if(lastAnimating) return;
+    lastAnimating = true;
+    cardEl.classList.add('leaving');
+    setTimeout(function(){
+      deckIndex++;
+      cardEl.classList.remove('leaving');
+      showCard();
+      if(deckIndex < deck.length){
+        cardEl.classList.add('entering');
+        setTimeout(function(){ cardEl.classList.remove('entering'); lastAnimating=false; }, 320);
+      } else { lastAnimating = false; }
+    }, 260);
+  }
+  cardEl.addEventListener('click', nextCard);
+
+  function launch(){
+    teamsRecapEl.classList.add('hide');
+    livesBarEl.classList.add('hide');
+    lifeBtn.classList.add('hide');
+    if(currentMode === 'equipes') setupTeams();
+    if(currentMode === 'elimination') setupLives();
+    deck = shuffledDeck();
+    deckIndex = 0;
+    show('picolo-game-screen');
+    showCard();
+  }
+  startBtn.onclick = function(){ if(players.length >= 2) launch(); };
+  document.getElementById('picolo-replay-btn').onclick = launch;
+
+  window.picoloOnOpen = function(){
+    startBtn.disabled = players.length < 2;
+    renderModes();
+    renderCatFilter();
+  };
+})();
+
+/* ============================================================
+   MODULE 2 — ROI DE LA SOIRÉE
+============================================================ */
+(function(){
+  var SUITS = [
+    { sym:'♠', color:'#F5EFE6' }, { sym:'♣', color:'#F5EFE6' },
+    { sym:'♥', color:'#FF3E7A' }, { sym:'♦', color:'#FF3E7A' }
+  ];
+  var RANKS = [
+    { r:'A', rule:"Cascade ! Tu commences à boire, tout le monde suit dans l'ordre. Personne ne s'arrête avant toi." },
+    { r:'2', rule:"Toi : tu distribues 2 gorgées à qui tu veux." },
+    { r:'3', rule:"Moi : tu bois 2 gorgées." },
+    { r:'4', rule:"Les filles boivent 2 gorgées." },
+    { r:'5', rule:"Les garçons boivent 2 gorgées." },
+    { r:'6', rule:"Cul sec : tu finis ton verre, maintenant." },
+    { r:'7', rule:"Ciel ! Tout le monde lève la main, le dernier levé boit." },
+    { r:'8', rule:"Pote : choisis un binôme. Chaque fois que tu bois jusqu'à la fin, il/elle boit aussi." },
+    { r:'9', rule:"Rime : dis un mot, ton voisin doit trouver une rime en 5 secondes, sinon il boit. Continue autour de la table." },
+    { r:'10', rule:"Catégorie : annonce une catégorie (ex : films). Chacun cite un élément à son tour, le premier qui bloque boit." },
+    { r:'J', rule:"Nouvelle règle : invente une règle qui s'applique jusqu'à la fin de la partie." },
+    { r:'Q', rule:"Question : pose une question à qui tu veux. S'il/elle répond, il/elle boit." },
+    { r:'K', rule:"Roi : verse une gorgée de ta boisson dans le verre au centre de la table." }
+  ];
+
+  var deck = [], idx = 0, kingsDrawn = 0, order = [], turnIndex = 0;
+
+  var progressPill = document.getElementById('roi-progress-pill');
+  var progressFill = document.getElementById('roi-progress-fill');
+  var kingsTrack = document.getElementById('roi-kings-track');
+  var turnEl = document.getElementById('roi-turn');
+  var cardEl = document.getElementById('roi-card');
+  var suitEl = document.getElementById('roi-suit');
+  var rankEl = document.getElementById('roi-rank');
+  var textEl = document.getElementById('roi-card-text');
+  var endTextEl = document.getElementById('roi-end-text');
+
+  function buildDeck(){
+    var d = [];
+    SUITS.forEach(function(s){ RANKS.forEach(function(r){ d.push({ suit:s, rank:r }); }); });
+    return shuffle(d);
+  }
+  function renderKings(){
+    kingsTrack.innerHTML = '';
+    for(var i=0;i<4;i++){
+      var el = document.createElement('div');
+      el.className = 'king-slot' + (i < kingsDrawn ? ' filled' : '');
+      el.textContent = '👑';
+      kingsTrack.appendChild(el);
+    }
+  }
+  function nextTurnName(){
+    if(!order.length) return '—';
+    var name = order[turnIndex % order.length];
+    turnIndex++;
+    return name;
+  }
+  function showCard(){
+    if(idx >= deck.length){
+      show('roi-end-screen');
+      endTextEl.textContent = 'Le paquet est épuisé avant le 4ᵉ Roi. Partie terminée, santé !';
+      return;
+    }
+    var entry = deck[idx];
+    suitEl.textContent = entry.suit.sym;
+    suitEl.style.color = entry.suit.color;
+    rankEl.textContent = entry.rank.r;
+    textEl.textContent = entry.rank.rule;
+    progressPill.textContent = 'Carte '+(idx+1)+' / 52';
+    progressFill.style.width = Math.round(((idx+1)/52)*100)+'%';
+    turnEl.textContent = 'Au tour de ' + nextTurnName();
+    if(entry.rank.r === 'K'){
+      kingsDrawn++;
+      renderKings();
+      if(kingsDrawn >= 4){
+        setTimeout(function(){
+          show('roi-end-screen');
+          endTextEl.textContent = (order[(turnIndex-1+order.length)%order.length] || 'Le joueur') + ' a tiré le 4ᵉ Roi : il/elle doit boire tout le verre du centre. 👑';
+        }, 700);
+      }
+    }
+  }
+  var animating = false;
+  function nextCard(){
+    if(animating || kingsDrawn >= 4) return;
+    animating = true;
+    cardEl.classList.add('leaving');
+    setTimeout(function(){
+      idx++;
+      cardEl.classList.remove('leaving');
+      showCard();
+      cardEl.classList.add('entering');
+      setTimeout(function(){ cardEl.classList.remove('entering'); animating=false; }, 320);
+    }, 260);
+  }
+  cardEl.addEventListener('click', nextCard);
+
+  function launch(){
+    deck = buildDeck();
+    idx = 0; kingsDrawn = 0; turnIndex = 0;
+    order = players.length ? shuffle(players) : ['Joueur 1'];
+    renderKings();
+    show('roi-game-screen');
+    showCard();
+  }
+  document.getElementById('roi-start-btn').onclick = launch;
+  document.getElementById('roi-replay-btn').onclick = launch;
+})();
+
+/* ============================================================
+   MODULE 3 — LE PLUS SUSCEPTIBLE
+============================================================ */
+(function(){
+  var QUESTIONS = [
+    "de devenir célèbre un jour ?",
+    "d'oublier l'anniversaire d'un proche ?",
+    "de survivre seul(e) sur une île déserte ?",
+    "d'arriver en retard à son propre mariage ?",
+    "de craquer en premier dans un jeu de survie ?",
+    "de rire au pire moment possible ?",
+    "de finir millionnaire ?",
+    "d'appeler la police pour un faux problème ?",
+    "de pleurer devant une pub ?",
+    "de se perdre dans sa propre ville ?",
+    "de draguer maladroitement ?",
+    "de tenir un secret plus de 5 minutes ?",
+    "de partir vivre à l'étranger sur un coup de tête ?",
+    "de dormir pendant un feu d'artifice ?",
+    "de manger les restes de tout le monde ?",
+    "de devenir influenceur/euse ?",
+    "de gagner à un jeu télévisé de culture générale ?",
+    "d'appeler son/sa boss par erreur 'bébé' ?",
+    "de refaire sa décoration tous les 6 mois ?",
+    "de convaincre le groupe de faire un truc totalement absurde ?",
+    "de danser sur une table avant minuit ?",
+    "de dire 'je t'aime' en premier dans une relation ?",
+    "de rater son propre réveil un jour important ?",
+    "de devenir végétarien(ne) du jour au lendemain ?",
+    "de se marier avant 30 ans ?",
+    "de partir en road trip sans plan ?",
+    "de rater un vol par excès de confiance ?",
+    "d'être encore debout à 5h du matin ce soir ?"
+  ];
+  var deck = [], idx = 0, scores = {};
+  var progressPill = document.getElementById('susc-progress-pill');
+  var progressFill = document.getElementById('susc-progress-fill');
+  var cardText = document.getElementById('susc-card-text');
+  var voteGrid = document.getElementById('susc-vote-grid');
+  var leaderboardEl = document.getElementById('susc-leaderboard');
+
+  function renderVoteGrid(){
+    voteGrid.innerHTML = '';
+    players.forEach(function(name){
+      var chip = document.createElement('div');
+      chip.className = 'vote-chip';
+      chip.textContent = name;
+      chip.onclick = function(){
+        scores[name] = (scores[name]||0) + 1;
+        nextQuestion();
+      };
+      voteGrid.appendChild(chip);
+    });
+  }
+  function showQuestion(){
+    if(idx >= deck.length){ finish(); return; }
+    cardText.textContent = 'Qui est le plus susceptible ' + deck[idx];
+    progressPill.textContent = 'Question '+(idx+1)+' / '+deck.length;
+    progressFill.style.width = Math.round(((idx+1)/deck.length)*100)+'%';
+  }
+  function nextQuestion(){ idx++; showQuestion(); }
+  function finish(){
+    var names = Object.keys(scores);
+    names.sort(function(a,b){ return scores[b]-scores[a]; });
+    leaderboardEl.innerHTML = '';
+    if(names.length === 0){
+      leaderboardEl.innerHTML = '<div class="lb-row"><div class="lb-name">Personne n\'a encore été désigné !</div></div>';
+    }
+    var medals = ['🥇','🥈','🥉'];
+    names.forEach(function(name, i){
+      var row = document.createElement('div');
+      row.className = 'lb-row';
+      row.innerHTML = '<div class="lb-rank">'+(medals[i]||(i+1))+'</div><div class="lb-name">'+name+'</div><div class="lb-score">'+scores[name]+' point'+(scores[name]>1?'s':'')+'</div>';
+      leaderboardEl.appendChild(row);
+    });
+    show('susc-end-screen');
+  }
+  document.getElementById('susc-skip-btn').onclick = nextQuestion;
+  document.getElementById('susc-finish-btn').onclick = finish;
+
+  function launch(){
+    deck = shuffle(QUESTIONS);
+    idx = 0; scores = {};
+    renderVoteGrid();
+    show('susc-game-screen');
+    showQuestion();
+  }
+  document.getElementById('susc-start-btn').onclick = launch;
+  document.getElementById('susc-replay-btn').onclick = launch;
+  window.suscOnOpen = function(){};
+})();
+
+/* ============================================================
+   MODULE 4 — CHRONO XTREME
+============================================================ */
+(function(){
+  var CHALLENGES = [
+    {t:20,d:1,c:"citer 5 marques de voitures."},
+    {t:15,d:1,c:"réciter l'alphabet à l'envers."},
+    {t:10,d:1,c:"tenir en équilibre sur un pied."},
+    {t:15,d:1,c:"citer 3 films sans réfléchir."},
+    {t:10,d:1,c:"trouver un mot qui rime avec 'soirée'."},
+    {t:20,d:2,c:"faire deviner un mot par mimes à un adversaire de son choix."},
+    {t:15,d:2,c:"citer 5 pays d'Europe."},
+    {t:10,d:2,c:"dire l'alphabet en tapant dans ses mains à chaque voyelle."},
+    {t:20,d:2,c:"raconter une histoire improvisée avec les mots 'banane', 'orage' et 'chaussette'."},
+    {t:15,d:2,c:"imiter 3 animaux différents devant le groupe."},
+    {t:10,d:3,c:"finir son verre, chrono lancé maintenant."},
+    {t:20,d:3,c:"convaincre le groupe d'une intox totalement absurde."},
+    {t:15,d:3,c:"tenir un fou rire sans craquer pendant que le groupe essaie de le/la faire rire."},
+    {t:20,d:3,c:"citer 8 capitales du monde."},
+    {t:10,d:1,c:"faire 10 secondes de moonwalk, même raté."},
+    {t:15,d:2,c:"parler sans s'arrêter d'un sujet imposé par le groupe."},
+    {t:10,d:1,c:"deviner l'heure qu'il est à la seconde près, sans regarder."},
+    {t:20,d:3,c:"faire un discours de remerciement façon Oscars, improvisé."},
+    {t:15,d:1,c:"citer 5 fruits sans hésiter."},
+    {t:10,d:2,c:"tenir une planche (gainage) devant tout le monde."}
+  ];
+  var DIFFS = [ {id:1,label:'Facile'}, {id:2,label:'Moyen'}, {id:3,label:'Xtreme'} ];
+  var activeDiff = {1:true,2:true,3:true};
+  var deck = [], idx = 0, timer = null, remaining = 0, total = 0, turnIndex = 0;
+
+  var diffRow = document.getElementById('chrono-diff-row');
+  var progressPill = document.getElementById('chrono-progress-pill');
+  var progressFill = document.getElementById('chrono-progress-fill');
+  var turnEl = document.getElementById('chrono-turn');
+  var cardText = document.getElementById('chrono-card-text');
+  var timeLabel = document.getElementById('chrono-time-label');
+  var timerWrap = document.getElementById('chrono-timer-wrap');
+  var ring = document.getElementById('chrono-ring');
+  var num = document.getElementById('chrono-num');
+  var launchWrap = document.getElementById('chrono-launch-wrap');
+  var actionsWrap = document.getElementById('chrono-actions');
+  var endTextEl = document.getElementById('chrono-end-text');
+
+  function renderDiffs(){
+    diffRow.innerHTML = '';
+    DIFFS.forEach(function(d){
+      var chip = document.createElement('div');
+      chip.className = 'diff-chip' + (activeDiff[d.id] ? ' active' : '');
+      chip.textContent = d.label;
+      chip.onclick = function(){ activeDiff[d.id] = !activeDiff[d.id]; renderDiffs(); };
+      diffRow.appendChild(chip);
+    });
+  }
+
+  function showChallenge(){
+    if(idx >= deck.length){
+      show('chrono-end-screen');
+      endTextEl.textContent = 'Paquet de défis épuisé. On relance une manche ?';
+      return;
+    }
+    clearInterval(timer);
+    var entry = deck[idx];
+    var pool = fillTemplate('{j}', players.length ? players : ['Joueur']);
+    turnEl.textContent = 'Au tour de ' + pool.text;
+    cardText.textContent = 'Tu dois ' + entry.c;
+    timeLabel.textContent = entry.t + 's';
+    progressPill.textContent = 'Défi '+(idx+1)+' / '+deck.length;
+    progressFill.style.width = Math.round(((idx+1)/deck.length)*100)+'%';
+    launchWrap.classList.remove('hide');
+    timerWrap.classList.add('hide');
+    actionsWrap.classList.add('hide');
+    remaining = entry.t; total = entry.t;
+  }
+  function startTimer(){
+    launchWrap.classList.add('hide');
+    timerWrap.classList.remove('hide');
+    num.textContent = remaining;
+    ring.style.setProperty('--pct', 100);
+    timer = setInterval(function(){
+      remaining--;
+      num.textContent = Math.max(remaining,0);
+      ring.style.setProperty('--pct', Math.max(Math.round((remaining/total)*100),0));
+      if(remaining <= 0){
+        clearInterval(timer);
+        actionsWrap.classList.remove('hide');
+        timerWrap.classList.add('hide');
+        num.textContent = "TEMPS ÉCOULÉ";
+      }
+    }, 1000);
+  }
+  document.getElementById('chrono-launch-btn').onclick = startTimer;
+  function nextChallenge(){ idx++; showChallenge(); }
+  document.getElementById('chrono-fail-btn').onclick = nextChallenge;
+  document.getElementById('chrono-ok-btn').onclick = nextChallenge;
+
+  function launch(){
+    var pool = CHALLENGES.filter(function(c){ return activeDiff[c.d]; });
+    if(!pool.length) pool = CHALLENGES;
+    deck = shuffle(pool);
+    idx = 0;
+    show('chrono-game-screen');
+    showChallenge();
+  }
+  document.getElementById('chrono-start-btn').onclick = launch;
+  document.getElementById('chrono-replay-btn').onclick = launch;
+  window.chronoOnOpen = function(){ renderDiffs(); };
+})();
+
+/* ============================================================
+   MODULE 5 — ACTION OU VÉRITÉ
+============================================================ */
+(function(){
+  var ACTIONS = [
+    {d:1,t:"imite un animal jusqu'à ton prochain tour."},
+    {d:1,t:"parle avec l'accent de ton choix pendant 2 tours."},
+    {d:1,t:"fais 10 pompes, ou bois 2 gorgées."},
+    {d:1,t:"danse 15 secondes sans musique."},
+    {d:1,t:"prends la pose la plus ridicule possible pendant 10 secondes."},
+    {d:1,t:"envoie un message rigolo à la 3ᵉ personne de tes contacts."},
+    {d:1,t:"parle en chuchotant jusqu'à ton prochain tour."},
+    {d:2,t:"fais un compliment sincère à {j}."},
+    {d:2,t:"imite {j} de façon (gentiment) exagérée."},
+    {d:2,t:"laisse {j} te recoiffer comme il/elle veut."},
+    {d:2,t:"fais deviner un mot en mime à {j}."},
+    {d:2,t:"raconte ta pire honte de soirée."},
+    {d:2,t:"échange un vêtement avec {j} pour 2 tours."},
+    {d:3,t:"fais un slow avec {j} sur une musique imaginaire."},
+    {d:3,t:"fais une déclaration d'amour improvisée à {j}."},
+    {d:3,t:"montre la dernière photo de ta galerie, ou bois 3 gorgées."},
+    {d:3,t:"appelle {j} et chante-lui la sérénade... même s'il/elle est à côté."},
+    {d:3,t:"envoie 'je pense à toi 🥰' à ton dernier contact, ou bois 3 gorgées."},
+    {d:1,t:"fais ton meilleur cri de guerre."},
+    {d:1,t:"parle à la 3ᵉ personne (\"Lucas pense que...\") jusqu'à ton prochain tour."},
+    {d:1,t:"mime la façon dont tu te réveilles le matin."},
+    {d:1,t:"invente un slogan de pub pour la boisson devant toi."},
+    {d:2,t:"laisse {j} choisir ta prochaine gorgée dans n'importe quel verre."},
+    {d:2,t:"fais un bras de fer contre {j}, le perdant boit 2 gorgées."},
+    {d:2,t:"parle uniquement en rimes jusqu'à ton prochain tour."},
+    {d:2,t:"prends {j} en photo sous ton plus beau profil et garde-la en fond d'écran 5 min."},
+    {d:3,t:"laisse {j} lire ton dernier message envoyé à voix haute."},
+    {d:3,t:"fais un tour de la pièce sur les genoux de {j} (ou bois 3 gorgées)."},
+    {d:3,t:"imite le/la crush de {j} d'après ses indications."},
+    {d:3,t:"donne ton téléphone déverrouillé à {j} pendant 30 secondes, ou bois 4 gorgées."}
+  ];
+  var VERITES = [
+    {d:1,t:"quel est ton pire karaoké assumé ?"},
+    {d:1,t:"quelle est la dernière chose que tu as cherchée sur Google ?"},
+    {d:1,t:"quel surnom détestes-tu le plus ?"},
+    {d:1,t:"quelle est ta plus grande peur ?"},
+    {d:1,t:"quel est le dernier mensonge que tu as dit ?"},
+    {d:1,t:"quelle est ta manie la plus bizarre ?"},
+    {d:2,t:"qui, dans la pièce, inviterais-tu en soirée en premier ?"},
+    {d:2,t:"quelle est la chose la plus gênante de ton historique ?"},
+    {d:2,t:"as-tu déjà menti à quelqu'un présent ce soir ?"},
+    {d:2,t:"quel est ton pire rencard ?"},
+    {d:2,t:"quelle est la bêtise dont tu es le plus fier(ère) ?"},
+    {d:3,t:"qui, dans la pièce, embrasserais-tu si tu devais absolument choisir ?"},
+    {d:3,t:"quel est ton plus gros secret de soirée ?"},
+    {d:3,t:"à qui, ici, enverrais-tu un message à 3h du mat ?"},
+    {d:3,t:"quel est ton plus grand regret amoureux ?"},
+    {d:3,t:"quelle est la chose la plus folle que tu aies faite par amour ?"},
+    {d:1,t:"quel est le talent caché dont tu n'es pas peu fier(ère) ?"},
+    {d:1,t:"quelle appli passes-tu le plus de temps à scroller ?"},
+    {d:1,t:"quel est ton plaisir coupable musical ?"},
+    {d:2,t:"quelle personne présente aurais-tu détestée au lycée ?"},
+    {d:2,t:"quel est le pire prétexte que tu aies inventé pour annuler un plan ?"},
+    {d:2,t:"as-tu déjà stalké quelqu'un présent sur les réseaux ?"},
+    {d:2,t:"quelle rumeur as-tu déjà lancée ou relayée ?"},
+    {d:3,t:"quelle est ta pire expérience de baiser ?"},
+    {d:3,t:"quel est le dernier rêve gênant dont tu te souviennes ?"},
+    {d:3,t:"qui, dans la pièce, ferait le meilleur coup d'un soir selon toi ?"},
+    {d:3,t:"quel est le secret que tu n'as jamais dit à personne ici ?"}
+  ];
+  var DIFFS = [ {id:1,label:'Soft'}, {id:2,label:'Épicé'}, {id:3,label:'Hot'} ];
+  var activeDiff = {1:true,2:true,3:false};
+  var turnIndex = 0, tourCount = 0, answered = false;
+
+  var diffRow = document.getElementById('av-diff-row');
+  var turnEl = document.getElementById('av-turn');
+  var progressPill = document.getElementById('av-progress-pill');
+  var cardEl = document.getElementById('av-card');
+  var catBadge = document.getElementById('av-cat-badge');
+  var cardText = document.getElementById('av-card-text');
+  var cardFoot = document.getElementById('av-card-foot');
+  var choiceWrap = document.getElementById('av-choice-wrap');
+  var nextBtn = document.getElementById('av-next-btn');
+
+  function renderDiffs(){
+    diffRow.innerHTML = '';
+    DIFFS.forEach(function(d){
+      var chip = document.createElement('div');
+      chip.className = 'diff-chip' + (activeDiff[d.id] ? ' active' : '');
+      chip.style.setProperty('--m-chrono', 'var(--m-av)');
+      chip.style.setProperty('--m-chrono-dk', 'var(--m-av-dk)');
+      chip.textContent = d.label;
+      chip.onclick = function(){ activeDiff[d.id] = !activeDiff[d.id]; renderDiffs(); };
+      diffRow.appendChild(chip);
+    });
+  }
+  function currentPlayer(){ return players.length ? players[turnIndex % players.length] : 'Joueur'; }
+  function poolFor(type){
+    var src = (type === 'action') ? ACTIONS : VERITES;
+    var f = src.filter(function(c){ return activeDiff[c.d]; });
+    return f.length ? f : src;
+  }
+  function newTurn(){
+    answered = false;
+    turnEl.textContent = 'Au tour de ' + currentPlayer();
+    catBadge.textContent = 'À TOI DE CHOISIR';
+    catBadge.style.background = 'var(--m-av-dk)'; catBadge.style.color = 'var(--m-av)';
+    cardText.style.fontSize = '24px';
+    cardText.textContent = 'Action ou Vérité ?';
+    cardFoot.textContent = '';
+    progressPill.textContent = 'Tour ' + tourCount;
+    choiceWrap.classList.remove('hide');
+    nextBtn.classList.add('hide');
+  }
+  function choose(type){
+    if(answered) return; answered = true;
+    var entry = pick(poolFor(type));
+    var others = players.filter(function(p){ return p !== currentPlayer(); });
+    var filled = fillTemplate(entry.t, others.length ? others : (players.length ? players : ['Joueur']));
+    if(type === 'action'){
+      catBadge.textContent = '🎬 ACTION';
+      catBadge.style.background = 'var(--m-av-dk)'; catBadge.style.color = 'var(--m-av)';
+    } else {
+      catBadge.textContent = '💬 VÉRITÉ';
+      catBadge.style.background = 'var(--m-susc-dk)'; catBadge.style.color = 'var(--m-susc)';
+    }
+    cardText.style.fontSize = '22px';
+    cardText.textContent = filled.text;
+    cardFoot.textContent = 'Refuser → ' + (softMode ? '2 points' : '2 gorgées');
+    choiceWrap.classList.add('hide');
+    nextBtn.classList.remove('hide');
+  }
+  document.getElementById('av-action-btn').onclick = function(){ choose('action'); };
+  document.getElementById('av-verite-btn').onclick = function(){ choose('verite'); };
+  nextBtn.onclick = function(){
+    turnIndex++; tourCount++;
+    cardEl.classList.add('leaving');
+    setTimeout(function(){
+      cardEl.classList.remove('leaving');
+      newTurn();
+      cardEl.classList.add('entering');
+      setTimeout(function(){ cardEl.classList.remove('entering'); }, 320);
+    }, 260);
+  };
+  function launch(){ turnIndex = 0; tourCount = 1; show('av-game-screen'); newTurn(); }
+  document.getElementById('av-start-btn').onclick = launch;
+  document.getElementById('av-replay-btn').onclick = launch;
+  document.getElementById('av-finish-btn').onclick = function(){
+    document.getElementById('av-end-text').textContent = tourCount + (tourCount > 1 ? ' tours joués' : ' tour joué') + '. La soirée continue !';
+    show('av-end-screen');
+  };
+  window.avOnOpen = function(){ renderDiffs(); };
+})();
+
+/* ============================================================
+   MODULE 6 — LA BOMBE
+============================================================ */
+(function(){
+  var CATS = [
+    "un prénom de fille","un prénom de garçon","une marque de voiture","un pays",
+    "un fruit","un animal","une couleur","un métier","une marque d'alcool",
+    "un film","une série","un chanteur ou un groupe","une ville de France","un plat",
+    "un sport","un super-héros","une chose qu'on trouve dans un frigo","un dessin animé",
+    "une raison d'arriver en retard","une marque de vêtements","un instrument de musique",
+    "un légume","une capitale","un mot qui commence par S","un objet dans cette pièce",
+    "une boisson sans alcool","un personnage de jeu vidéo","une île"
+  ];
+  var visual = document.getElementById('bomb-visual');
+  var catBadge = document.getElementById('bombe-cat-badge');
+  var promptEl = document.getElementById('bombe-prompt');
+  var passBtn = document.getElementById('bombe-pass-btn');
+  var endText = document.getElementById('bombe-end-text');
+  var timer = null, explodeAt = 0, elapsed = 0, running = false;
+
+  /* ---- son (Web Audio, généré à la volée) ---- */
+  var actx = null;
+  function ensureAudio(){
+    if(actx) { if(actx.state === 'suspended') actx.resume(); return; }
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ actx = null; }
+  }
+  function tone(freq, dur, type, vol){
+    if(!actx) return;
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'square'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || 0.06, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + dur);
+  }
+  function tick_(fast){ tone(fast ? 1400 : 900, 0.05, 'square', 0.05); }
+  function boom(){
+    if(!actx) return;
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(220, actx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(40, actx.currentTime + 0.5);
+    g.gain.setValueAtTime(0.18, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.55);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + 0.55);
+  }
+
+  function newRound(){
+    var cat = pick(CATS);
+    catBadge.textContent = 'CATÉGORIE';
+    promptEl.textContent = 'Cite ' + cat;
+    visual.textContent = '💣';
+    visual.classList.remove('fast');
+    running = true; elapsed = 0;
+    explodeAt = 12 + Math.floor(Math.random() * 24); /* 12–35 s */
+    clearInterval(timer);
+    timer = setInterval(tick, 1000);
+  }
+  function tick(){
+    elapsed++;
+    var fast = (explodeAt - elapsed) <= 6;
+    if(fast) visual.classList.add('fast');
+    tick_(fast);
+    if(elapsed >= explodeAt){
+      clearInterval(timer); running = false;
+      boom();
+      endText.textContent = 'La bombe a explosé ! La personne qui tient le téléphone boit ' + (softMode ? '3 points' : '3 gorgées') + '.';
+      show('bombe-end-screen');
+    }
+  }
+  passBtn.onclick = function(){
+    if(!running) return;
+    tone(600, 0.04, 'triangle', 0.05);
+    visual.style.transform = 'scale(1.25)';
+    setTimeout(function(){ visual.style.transform = ''; }, 100);
+  };
+  function launch(){ ensureAudio(); show('bombe-game-screen'); newRound(); }
+  document.getElementById('bombe-start-btn').onclick = launch;
+  document.getElementById('bombe-replay-btn').onclick = launch;
+  document.getElementById('bombe-quit').addEventListener('click', function(){ clearInterval(timer); running = false; });
+})();
+
+/* ============================================================
+   MODULE 7 — ROULETTE DES GAGES
+============================================================ */
+(function(){
+  var GAGES = [
+    "distribue 3 gorgées à qui tu veux",
+    "bois 2 gorgées cul sec",
+    "invente un cocktail imaginaire et vends-le au groupe",
+    "fais 5 squats maintenant",
+    "raconte ta pire cuite",
+    "choisis quelqu'un : vous buvez ensemble 1 gorgée",
+    "chante le refrain de ta chanson préférée",
+    "prends l'accent québécois jusqu'à ton prochain tour",
+    "fais un compliment à la personne à ta gauche",
+    "imite quelqu'un du groupe, les autres devinent",
+    "poste un selfie de groupe en story",
+    "reste debout sur une jambe le temps d'un tour",
+    "donne ton téléphone au voisin pour 1 tour",
+    "fais deviner un film en mimes",
+    "tout le monde boit 1 gorgée à ta santé",
+    "échange de place avec quelqu'un",
+    "parle sans montrer les dents jusqu'à ton prochain tour",
+    "bois 1 gorgée et rejoue"
+  ];
+  var slotText = document.getElementById('roul-slot-text');
+  var slot = document.getElementById('roul-slot');
+  var turnPill = document.getElementById('roul-turn-pill');
+  var spinBtn = document.getElementById('roul-spin-btn');
+  var spinning = false;
+
+  function spin(){
+    if(spinning) return; spinning = true;
+    slot.classList.add('spinning'); spinBtn.disabled = true; turnPill.textContent = '...';
+    var ticks = 0, total = 16 + Math.floor(Math.random()*8), delay = 55;
+    (function step(){
+      slotText.textContent = pick(GAGES);
+      ticks++;
+      if(ticks >= total){ land(); return; }
+      if(ticks > total - 6) delay += 45;
+      setTimeout(step, delay);
+    })();
+  }
+  function land(){
+    spinning = false; slot.classList.remove('spinning'); spinBtn.disabled = false;
+    var victim = players.length ? pick(players) : 'Quelqu\'un';
+    var g = slotText.textContent;
+    if(softMode) g = g.replace(/gorgées/g,'points').replace(/gorgée/g,'point').replace(/cul sec/g,'gros combo');
+    slotText.textContent = victim + ' → ' + g + '.';
+    turnPill.textContent = '🎯 ' + victim;
+    spinBtn.textContent = '🎰 Retourner';
+  }
+  spinBtn.onclick = spin;
+  function enter(){
+    slotText.textContent = 'Prêt ? Touche Tourner !'; turnPill.textContent = '—'; spinBtn.textContent = '🎰 Tourner';
+    show('roul-game-screen');
+  }
+  document.getElementById('roul-start-btn').onclick = enter;
+  document.getElementById('roul-finish').onclick = function(){
+    gameOver({ emoji:'🎰', title:'ROULETTE FINIE', color:'var(--m-roul)', text:'La roue s\'arrête là. Santé !', onReplay:enter });
+  };
+})();
+
+/* ============================================================
+   MODULE 8 — PARANOÏA
+============================================================ */
+(function(){
+  var QUESTIONS = [
+    "est le/la plus susceptible de finir la nuit sur le canapé ?",
+    "embrasserait le mieux ?",
+    "ferait le meilleur acteur ou la meilleure actrice ?",
+    "est le/la plus susceptible de devenir riche ?",
+    "raconte le plus de bêtises quand il/elle a bu ?",
+    "est le/la plus beau/belle ce soir ?",
+    "est le/la plus susceptible de draguer un(e) inconnu(e) ?",
+    "mentirait le plus facilement ?",
+    "est le/la plus drôle du groupe ?",
+    "est le/la plus susceptible de t'appeler à 4h du mat ?",
+    "est le/la plus timide en vrai ?",
+    "est le/la plus susceptible de finir en couple ce soir ?",
+    "gère le moins l'alcool ?",
+    "est le/la plus susceptible de danser sur la table ?",
+    "a le crush le plus inavouable ?",
+    "serait le/la plus dangereux(se) avec un secret ?"
+  ];
+  var turnPill = document.getElementById('para-turn-pill');
+  var badge = document.getElementById('para-badge');
+  var textEl = document.getElementById('para-text');
+  var coin = document.getElementById('para-coin');
+  var revealBtn = document.getElementById('para-reveal-btn');
+  var nextBtn = document.getElementById('para-next-btn');
+  var hint = document.getElementById('para-hint');
+  var reader = 0, currentQ = '';
+
+  function newQuestion(){
+    var name = players.length ? players[reader % players.length] : 'Joueur';
+    turnPill.textContent = '🤫 ' + name;
+    currentQ = 'Qui ' + pick(QUESTIONS);
+    badge.textContent = 'CHUCHOTE À TON VOISIN'; badge.style.background = 'var(--m-para-dk)'; badge.style.color = 'var(--m-para)';
+    textEl.textContent = currentQ;
+    coin.classList.add('hide'); coin.classList.remove('flipping'); coin.textContent = '🪙';
+    revealBtn.classList.remove('hide'); nextBtn.classList.add('hide');
+    hint.textContent = 'Ton voisin répond un prénom à voix haute.';
+  }
+  function reveal(){
+    revealBtn.classList.add('hide');
+    coin.classList.remove('hide'); coin.classList.add('flipping');
+    hint.textContent = 'La pièce décide...';
+    setTimeout(function(){
+      coin.classList.remove('flipping');
+      if(Math.random() < 0.5){
+        coin.textContent = '👁️'; badge.textContent = 'RÉVÉLÉ !';
+        textEl.textContent = currentQ + '  →  la personne nommée boit ' + (softMode ? '2 points' : '2 gorgées') + '.';
+        hint.textContent = 'Tout le monde connaît la question.';
+      } else {
+        coin.textContent = '🤐'; badge.textContent = 'SECRET';
+        textEl.textContent = 'La question reste secrète... La personne nommée peut boire ' + (softMode ? '1 point' : '1 gorgée') + ' pour la connaître.';
+        hint.textContent = 'Mystère total.';
+      }
+      nextBtn.classList.remove('hide');
+    }, 1400);
+  }
+  revealBtn.onclick = reveal;
+  nextBtn.onclick = function(){ reader++; newQuestion(); };
+  function enter(){ reader = 0; show('para-game-screen'); newQuestion(); }
+  document.getElementById('para-start-btn').onclick = enter;
+  document.getElementById('para-finish').onclick = function(){
+    gameOver({ emoji:'🤫', title:'FIN DE LA PARANO', color:'var(--m-para)', text:'Les secrets restent entre vous... ou pas.', onReplay:enter });
+  };
+})();
+
+/* ============================================================
+   MODULE 9 — DUEL
+============================================================ */
+(function(){
+  var DUELS = [
+    "bras de fer. Le perdant boit.",
+    "concours de regard : le premier qui cligne ou rit perd.",
+    "pierre-feuille-ciseaux, best of 3.",
+    "premier à citer 5 marques de bière gagne.",
+    "concours de grimaces, le groupe juge.",
+    "bras tendus à l'horizontale : le premier à baisser les bras perd.",
+    "duel de mimes du même mot : le plus lent à faire deviner perd.",
+    "premier à faire rire l'autre gagne.",
+    "chifoumi géant avec tout le corps, best of 3.",
+    "duel de compliments : le premier à sécher perd.",
+    "équilibre sur un pied : le premier à poser le pied perd.",
+    "premier à citer 5 pays d'Afrique gagne.",
+    "duel d'accents : le groupe élit le pire.",
+    "premier à trouver un objet rouge dans la pièce gagne.",
+    "concours de blagues : le groupe désigne le/la moins drôle.",
+    "premier à réciter l'alphabet à l'envers gagne."
+  ];
+  var p1El = document.getElementById('duel-p1');
+  var p2El = document.getElementById('duel-p2');
+  var textEl = document.getElementById('duel-text');
+  var card = document.getElementById('duel-card');
+
+  function newDuel(){
+    var a = 'Joueur 1', b = 'Joueur 2';
+    if(players.length >= 2){ var two = shuffle(players).slice(0,2); a = two[0]; b = two[1]; }
+    p1El.textContent = a; p2El.textContent = b;
+    var d = pick(DUELS);
+    if(softMode) d = d.replace(/boit/g,'prend un point').replace(/gorgées/g,'points');
+    textEl.textContent = d;
+    card.classList.add('entering');
+    setTimeout(function(){ card.classList.remove('entering'); }, 320);
+  }
+  document.getElementById('duel-next-btn').onclick = newDuel;
+  function enter(){ show('duel-game-screen'); newDuel(); }
+  document.getElementById('duel-start-btn').onclick = enter;
+  document.getElementById('duel-finish').onclick = function(){
+    gameOver({ emoji:'⚔️', title:'DUELS TERMINÉS', color:'var(--m-duel)', text:'Trêve. Les rivalités reprendront plus tard.', onReplay:enter });
+  };
+})();
+
+/* ============================================================
+   MODULE 10 — LE DÉ
+============================================================ */
+(function(){
+  var FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+  var OUTCOMES = [
+    "distribue 2 gorgées à qui tu veux.",
+    "bois 2 gorgées.",
+    "{j} et toi buvez ensemble.",
+    "invente une règle valable jusqu'au prochain 6.",
+    "tout le monde boit 1 gorgée !",
+    "le/la voisin(e) de gauche boit.",
+    "cul sec pour le/la plus lent(e) à lever la main.",
+    "choisis quelqu'un : il/elle boit ou fait un gage.",
+    "bois 1 gorgée et relance.",
+    "{j} choisit ton prochain gage.",
+    "personne ne boit... cette fois.",
+    "le/la plus jeune boit 2 gorgées."
+  ];
+  var die = document.getElementById('de-die');
+  var badge = document.getElementById('de-badge');
+  var textEl = document.getElementById('de-text');
+  var rolling = false;
+
+  function roll(){
+    if(rolling) return; rolling = true;
+    die.classList.add('rolling');
+    var ticks = 0, total = 10 + Math.floor(Math.random()*6), delay = 65;
+    (function step(){
+      die.textContent = pick(FACES);
+      ticks++;
+      if(ticks >= total){ land(); return; }
+      if(ticks > total - 4) delay += 50;
+      setTimeout(step, delay);
+    })();
+  }
+  function land(){
+    rolling = false; die.classList.remove('rolling');
+    var n = 1 + Math.floor(Math.random()*6);
+    die.textContent = FACES[n-1];
+    badge.textContent = 'FACE ' + n;
+    var filled = fillTemplate(pick(OUTCOMES), players.length ? players : ['Joueur']);
+    textEl.textContent = filled.text;
+  }
+  document.getElementById('de-roll-btn').onclick = roll;
+  function enter(){
+    badge.textContent = 'FACE —'; textEl.textContent = 'Lance le dé !'; die.textContent = '🎲';
+    show('de-game-screen');
+  }
+  document.getElementById('de-start-btn').onclick = enter;
+  document.getElementById('de-finish').onclick = function(){
+    gameOver({ emoji:'🎲', title:'FIN DES LANCERS', color:'var(--m-de)', text:'Le sort a parlé. Santé !', onReplay:enter });
+  };
+})();
+
+/* ---- init ---- */
+renderHubChips();
+renderModuleList();
+})();
+</script>
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+</script>
+</body>
+</html>

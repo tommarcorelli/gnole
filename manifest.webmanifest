@@ -1,0 +1,17 @@
+{
+  "name": "GNOLE.",
+  "short_name": "GNOLE",
+  "description": "L'appli qui lance la soirée — 10 jeux à boire (Picolo, Roi, Bombe, Duel...).",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0713",
+  "theme_color": "#0A0713",
+  "lang": "fr",
+  "categories": ["games", "entertainment", "social"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
