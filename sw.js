@@ -1,5 +1,5 @@
 /* GNOLE — service worker (offline-first) */
-const CACHE = 'gnole-v5';
+const CACHE = 'gnole-v6';
 const CORE = [
   './',
   './index.html',

@@ -199,17 +199,23 @@
   .filter-chip .fc-count{ font-size:11px; font-weight:800; color:var(--muted); background:rgba(0,0,0,.3); border-radius:999px; padding:0 6px; }
   .filter-chip.active .fc-count{ color:var(--sunset-3); }
 
-  /* ---- Hub responsive : grille de jeux sur grand écran ---- */
+  /* ---- Menu hamburger (tiroir latéral) ---- */
+  .hub-bar{ width:100%; display:flex; margin-bottom:2px; }
+  .menu-btn{ background:var(--glass); border:1px solid var(--glass-edge); color:var(--ink); width:48px; height:48px; border-radius:14px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .12s ease, border-color .15s ease; backdrop-filter:blur(6px); }
+  .menu-btn:hover{ transform:translateY(-1px); border-color:var(--sunset-1); }
+  #open-games-btn{ margin-top:2px; }
+
+  .drawer-scrim{ position:fixed; inset:0; background:rgba(0,0,0,.55); backdrop-filter:blur(2px); opacity:0; visibility:hidden; transition:opacity .25s ease, visibility .25s; z-index:60; }
+  .drawer-scrim.open{ opacity:1; visibility:visible; }
+  .drawer{ position:fixed; top:0; left:0; height:100%; width:min(90vw, 380px); background:linear-gradient(160deg, #150C26, #0A0713); border-right:1px solid var(--glass-edge); box-shadow:24px 0 70px -24px #000; z-index:61; transform:translateX(-100%); transition:transform .28s cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column; padding:18px 16px 26px; overflow-y:auto; }
+  .drawer.open{ transform:translateX(0); }
+  .drawer-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .drawer-title{ font-family:'Anton', sans-serif; font-size:22px; text-transform:uppercase; letter-spacing:.5px; }
+  .drawer-close{ background:var(--glass); border:1px solid var(--glass-edge); color:var(--ink); width:38px; height:38px; border-radius:50%; font-size:15px; cursor:pointer; flex-shrink:0; }
+  .drawer .module-list{ gap:11px; }
   @media (min-width: 768px){
-    #hub-screen{ max-width: 900px; }
-    #hub-screen .hub-header, #hub-screen .panel, #hub-screen .disclaimer{ max-width: 480px; margin-left:auto; margin-right:auto; }
-    #hub-screen .hub-filters{ justify-content:center; }
-    #hub-screen .module-list{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; align-items:stretch; }
-    #hub-screen .module-card{ animation:none; }
-  }
-  @media (min-width: 1160px){
-    #hub-screen{ max-width: 1220px; }
-    #hub-screen .module-list{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .drawer{ width:min(92vw, 720px); }
+    .drawer .module-list{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; align-items:stretch; }
   }
 
   /* ---- Shared sub-screens ---- */
@@ -404,6 +410,7 @@
 
 <!-- ======================= HUB ======================= -->
 <div class="screen" id="hub-screen">
+  <div class="hub-bar"><button class="menu-btn" id="menu-btn" aria-label="Ouvrir le menu des jeux">☰</button></div>
   <div class="hub-header">
     <div class="wordmark">GNOLE<span class="dot">.</span></div>
     <div class="hub-tag">Choisis ton jeu, la soirée s'occupe du reste.</div>
@@ -426,11 +433,21 @@
     </div>
   </div>
 
-  <div class="hub-filters" id="hub-filters"></div>
-  <div class="module-list" id="module-list"></div>
+  <button class="btn-start" id="open-games-btn" style="--mc:var(--sunset-1)">🎮 Choisir un jeu</button>
 
   <div class="disclaimer">Jeux à consommer avec modération. Prévois de l'eau à portée de main et ne force jamais quelqu'un qui ne veut pas boire.</div>
 </div>
+
+<!-- ======================= MENU (tiroir) ======================= -->
+<div class="drawer-scrim" id="drawer-scrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-title">🎮 Choisis ton jeu</div>
+    <button class="drawer-close" id="drawer-close" aria-label="Fermer le menu">✕</button>
+  </div>
+  <div class="hub-filters" id="hub-filters"></div>
+  <div class="module-list" id="module-list"></div>
+</aside>
 
 <!-- ======================= PICOLO ======================= -->
 <div class="screen hide" id="picolo-setup-screen">
@@ -1088,7 +1105,7 @@ function renderModuleList(){
         '<div class="module-min">'+(locked ? ('Encore '+(m.min-players.length)+' joueur(s) min.') : (m.min+' joueurs min.'))+'</div>'+
       '</div>'+
       '<div class="module-arrow">'+(locked ? '🔒' : '→')+'</div>';
-    el.onclick = function(){ if(!locked) openModule(m); };
+    el.onclick = function(){ if(!locked){ closeDrawer(); openModule(m); } };
     moduleListEl.appendChild(el);
   });
 }
@@ -1099,6 +1116,16 @@ function openModule(m){
   if(m.id === 'chrono') chronoOnOpen();
   if(m.id === 'av') avOnOpen();
 }
+
+/* ---- Menu (tiroir) ---- */
+var drawerEl = document.getElementById('drawer');
+var scrimEl = document.getElementById('drawer-scrim');
+function openDrawer(){ drawerEl.classList.add('open'); scrimEl.classList.add('open'); }
+function closeDrawer(){ drawerEl.classList.remove('open'); scrimEl.classList.remove('open'); }
+document.getElementById('menu-btn').onclick = openDrawer;
+document.getElementById('open-games-btn').onclick = openDrawer;
+document.getElementById('drawer-close').onclick = closeDrawer;
+scrimEl.onclick = closeDrawer;
 
 /* ============================================================
    MODULE 1 — PICOLO
