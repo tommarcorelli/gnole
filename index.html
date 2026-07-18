@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>GNOLE. — L'appli qui lance la soirée</title>
-<meta name="description" content="L'appli qui lance la soirée : 14 jeux à boire (Picolo, Roi de la soirée, Shot Roulette, Beer Pong, Culture Quiz...). Mode sans alcool inclus.">
+<meta name="description" content="L'appli qui lance la soirée : 18 jeux (Picolo, Roi, Petit Bac, Time's Up, Shot Roulette, Beer Pong...). Version soft sans alcool incluse.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0A0713">
 <meta name="mobile-web-app-capable" content="yes">
@@ -37,6 +37,10 @@
     --m-cadence:#FF1E1E;  --m-cadence-dk:#3A0808;
     --m-marathon:#6366F1; --m-marathon-dk:#17193F;
     --m-bpong:#FB8C00;    --m-bpong-dk:#3A1E06;
+    --m-bac:#38BDF8;      --m-bac-dk:#06283A;
+    --m-qui:#A855F7;      --m-qui-dk:#2A1140;
+    --m-tu:#FB7185;       --m-tu-dk:#3A121B;
+    --m-deux:#FACC15;     --m-deux-dk:#332900;
     --m-roul:#E85DFF;     --m-roul-dk:#340D44;
     --m-para:#2DD4BF;     --m-para-dk:#0A302B;
     --m-duel:#B6FF3D;     --m-duel-dk:#243A05;
@@ -187,6 +191,18 @@
 
   .disclaimer{ text-align:center; color:var(--muted); font-size:11px; line-height:1.6; padding:0 10px; }
 
+  /* ---- Hub responsive : grille de jeux sur grand écran ---- */
+  @media (min-width: 768px){
+    #hub-screen{ max-width: 900px; }
+    #hub-screen .hub-header, #hub-screen .panel, #hub-screen .disclaimer{ max-width: 480px; margin-left:auto; margin-right:auto; }
+    #hub-screen .module-list{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; align-items:stretch; }
+    #hub-screen .module-card{ animation:none; }
+  }
+  @media (min-width: 1160px){
+    #hub-screen{ max-width: 1220px; }
+    #hub-screen .module-list{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+  }
+
   /* ---- Shared sub-screens ---- */
   .topbar{ display:flex; justify-content:space-between; align-items:center; width:100%; max-width:420px; margin-bottom:16px; }
   .pill{ font-size:12px; color:var(--muted); background:var(--glass); border:1px solid var(--glass-edge); padding:7px 13px; border-radius:20px; font-weight:700; }
@@ -319,6 +335,21 @@
   .bp-btns{ display:flex; gap:8px; margin-top:12px; }
   .bp-btns button{ flex:1; border:1px solid var(--glass-edge); background:rgba(0,0,0,.28); color:var(--ink); border-radius:12px; padding:12px 0; font-weight:800; font-size:20px; cursor:pointer; }
   .bp-btns .minus{ color:var(--m-bpong); border-color:var(--m-bpong); }
+
+  /* ---- Petit Bac ---- */
+  .bac-letter{ width:124px; height:124px; margin:18px auto 14px; border-radius:28px; background:linear-gradient(150deg, var(--m-bac), #0a5f7a); color:#04222e; display:flex; align-items:center; justify-content:center; font-family:'Anton', sans-serif; font-size:72px; box-shadow:0 16px 40px -14px rgba(56,189,248,.6); animation:endPop .4s cubic-bezier(.2,.9,.3,1.4); }
+  .bac-cat{ text-align:center; font-family:'Anton', sans-serif; font-size:27px; color:var(--ink); line-height:1.15; margin:0 auto 6px; max-width:340px; padding:0 12px; }
+  .bac-sub{ text-align:center; color:var(--muted); font-size:13px; margin-bottom:22px; }
+
+  /* ---- Time's Up ---- */
+  .tu-timer{ text-align:center; font-family:'Anton', sans-serif; font-size:44px; color:var(--m-tu); margin:4px 0 0; }
+  .tu-timer.low{ color:var(--c-jamais); }
+  .tu-score{ text-align:center; color:var(--muted); font-size:13px; margin-bottom:8px; }
+  .tu-word{ text-align:center; font-family:'Anton', sans-serif; font-size:36px; line-height:1.1; margin:16px auto 22px; max-width:340px; padding:0 12px; min-height:88px; display:flex; align-items:center; justify-content:center; }
+  .tu-actions{ display:flex; gap:10px; max-width:360px; margin:0 auto; }
+  .tu-actions button{ flex:1; border-radius:14px; padding:15px; font-weight:900; font-size:15px; cursor:pointer; }
+  .tu-pass{ background:rgba(0,0,0,.25); border:1px solid var(--glass-edge); color:var(--muted); }
+  .tu-ok{ background:var(--c-action-dk); border:1px solid var(--c-action); color:var(--c-action); }
 
   /* ---- Roulette des gages ---- */
   .slot{
@@ -786,6 +817,91 @@
   <div class="hint">« − » à chaque cup perdu. À 0 cup, l'équipe descend son verre.</div>
 </div>
 
+<!-- ======================= PETIT BAC ======================= -->
+<div class="screen hide" id="bac-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🔤 Petit Bac</div></div>
+  <div class="module-title" style="color:var(--m-bac)">Petit Bac</div>
+  <div class="module-sub">Une lettre, une catégorie. Le plus rapide gagne.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Une <b style="color:var(--ink)">lettre</b> et une <b style="color:var(--ink)">catégorie</b> s'affichent. Le premier à crier un mot valide qui commence par cette lettre gagne — les autres (ou le plus lent) prennent un gage / une gorgée. Touche <b style="color:var(--ink)">Nouveau tirage</b> pour enchaîner.</div></div>
+  <button class="btn-start" id="bac-start-btn" style="--mc:var(--m-bac)">Commencer</button>
+</div>
+<div class="screen hide" id="bac-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill">🔤 Petit Bac</div></div>
+  <div class="bac-letter" id="bac-letter">A</div>
+  <div class="bac-cat" id="bac-cat">une catégorie</div>
+  <div class="bac-sub">Trouve un mot qui commence par cette lettre !</div>
+  <button class="btn-start" id="bac-next-btn" style="--mc:var(--m-bac)">🎲 Nouveau tirage</button>
+  <div class="finish-link" id="bac-finish">🏁 Terminer</div>
+</div>
+
+<!-- ======================= QUI SUIS-JE ? ======================= -->
+<div class="screen hide" id="qui-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🎭 Qui suis-je ?</div></div>
+  <div class="module-title" style="color:var(--m-qui)">Qui suis-je ?</div>
+  <div class="module-sub">Un personnage célèbre à deviner grâce aux indices du groupe.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">C'est ton tour ? <b style="color:var(--ink)">Ne regarde pas l'écran !</b> Un personnage s'affiche pour le reste du groupe, qui te donne des indices (sans dire le nom). Devine qui tu es, puis passe au joueur suivant.</div></div>
+  <button class="btn-start" id="qui-start-btn" style="--mc:var(--m-qui)">Commencer</button>
+</div>
+<div class="screen hide" id="qui-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="qui-turn-pill">🙈 —</div></div>
+  <div class="roi-turn" id="qui-turn" style="color:var(--m-qui);">Ne regarde pas !</div>
+  <div class="stage" style="height:300px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="qui-card" style="cursor:default;">
+      <div class="cat-badge" style="background:var(--m-qui-dk); color:var(--m-qui);">LE GROUPE VOIT :</div>
+      <div class="card-text" id="qui-name" style="font-size:30px; justify-content:center; text-align:center;">—</div>
+    </div>
+  </div>
+  <button class="btn-start" id="qui-next-btn" style="--mc:var(--m-qui)">Deviné ! Joueur suivant →</button>
+  <div class="finish-link" id="qui-finish">🏁 Terminer</div>
+</div>
+
+<!-- ======================= TIME'S UP ======================= -->
+<div class="screen hide" id="tu-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🎬 Time's Up</div></div>
+  <div class="module-title" style="color:var(--m-tu)">Time's Up</div>
+  <div class="module-sub">Fais deviner un max de mots avant la fin du chrono.</div>
+  <div class="panel">
+    <h2>Durée par manche</h2>
+    <div class="diff-row" id="tu-dur-row"></div>
+    <div style="font-size:13.5px; color:var(--muted); line-height:1.7; margin-top:6px;">Un mot s'affiche : fais-le deviner (mime ou description, sans dire le mot !). <b style="color:var(--ink)">Deviné</b> = mot suivant, <b style="color:var(--ink)">Passer</b> si tu bloques. Compte tes points avant le buzzer !</div>
+  </div>
+  <button class="btn-start" id="tu-start-btn" style="--mc:var(--m-tu)">🚀 C'est parti</button>
+</div>
+<div class="screen hide" id="tu-game-screen">
+  <div class="topbar"><div class="pill quit" id="tu-quit" data-back="hub-screen">← Quitter</div><div class="pill">🎬 Time's Up</div></div>
+  <div class="tu-timer" id="tu-timer">45</div>
+  <div class="tu-score" id="tu-score">0 trouvé</div>
+  <div class="tu-word" id="tu-word">MOT</div>
+  <div class="tu-actions">
+    <button class="tu-pass" id="tu-pass">⏭ Passer</button>
+    <button class="tu-ok" id="tu-ok">✅ Deviné</button>
+  </div>
+</div>
+
+<!-- ======================= 2 VÉRITÉS, 1 MENSONGE ======================= -->
+<div class="screen hide" id="deux-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🕵️ 2 vérités, 1 mensonge</div></div>
+  <div class="module-title" style="color:var(--m-deux)">2 vérités, 1 mensonge</div>
+  <div class="module-sub">Trois affirmations sur toi, une seule est fausse.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">À ton tour, annonce <b style="color:var(--ink)">3 affirmations sur toi</b> : 2 vraies, 1 fausse. Les autres votent laquelle est le <b style="color:var(--ink)">mensonge</b>. Ceux qui se trompent boivent (ou toi si personne ne se fait avoir !). Un thème t'est suggéré pour t'inspirer.</div></div>
+  <button class="btn-start" id="deux-start-btn" style="--mc:var(--m-deux)">Commencer</button>
+</div>
+<div class="screen hide" id="deux-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="deux-progress-pill">Tour 1</div></div>
+  <div class="roi-turn" id="deux-turn" style="color:var(--m-deux);">Au tour de —</div>
+  <div class="stage" style="height:300px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="deux-card" style="cursor:default;">
+      <div class="cat-badge" style="background:var(--m-deux-dk); color:var(--m-deux);">💡 THÈME SUGGÉRÉ</div>
+      <div class="card-text" id="deux-theme" style="font-size:24px; justify-content:center; text-align:center;">—</div>
+      <div class="card-num">2 vraies · 1 fausse</div>
+    </div>
+  </div>
+  <button class="btn-start" id="deux-next-btn" style="--mc:var(--m-deux)">Joueur suivant →</button>
+  <div class="finish-link" id="deux-finish">🏁 Terminer</div>
+</div>
+
 <!-- ======================= ÉCRAN DE FIN COMMUN ======================= -->
 <div class="screen hide" id="end-screen">
   <div class="panel end-panel">
@@ -914,7 +1030,11 @@ var MODULES = [
   { id:'shotr', name:'Shot Roulette', icon:'🥃', tag:'La roulette désigne qui descend son shot.', color:'--m-shotr', dk:'--m-shotr-dk', min:2, screen:'shotr-setup-screen' },
   { id:'cadence', name:'Cadence infernale', icon:'⏱️', tag:'Un tempo qui accélère : on boit à chaque bip.', color:'--m-cadence', dk:'--m-cadence-dk', min:2, screen:'cadence-setup-screen' },
   { id:'marathon', name:'Marathon', icon:'🪜', tag:'De plus en plus à chaque manche. Qui tiendra ?', color:'--m-marathon', dk:'--m-marathon-dk', min:2, screen:'marathon-setup-screen' },
-  { id:'bpong', name:'Beer Pong', icon:'🏓', tag:'Le compteur de score de ta partie de beer pong.', color:'--m-bpong', dk:'--m-bpong-dk', min:2, screen:'bpong-setup-screen' }
+  { id:'bpong', name:'Beer Pong', icon:'🏓', tag:'Le compteur de score de ta partie de beer pong.', color:'--m-bpong', dk:'--m-bpong-dk', min:2, screen:'bpong-setup-screen' },
+  { id:'bac', name:'Petit Bac', icon:'🔤', tag:'Une lettre, une catégorie. Trouve un mot avant les autres.', color:'--m-bac', dk:'--m-bac-dk', min:2, screen:'bac-setup-screen' },
+  { id:'qui', name:'Qui suis-je ?', icon:'🎭', tag:'Un perso célèbre à deviner grâce aux indices du groupe.', color:'--m-qui', dk:'--m-qui-dk', min:2, screen:'qui-setup-screen' },
+  { id:'tu', name:"Time's Up", icon:'🎬', tag:'Fais deviner un max de mots avant la fin du chrono.', color:'--m-tu', dk:'--m-tu-dk', min:2, screen:'tu-setup-screen' },
+  { id:'deux', name:'2 vérités, 1 mensonge', icon:'🕵️', tag:'Trois affirmations, un mensonge. Sauras-tu bluffer ?', color:'--m-deux', dk:'--m-deux-dk', min:2, screen:'deux-setup-screen' }
 ];
 var moduleListEl = document.getElementById('module-list');
 function renderModuleList(){
@@ -2275,6 +2395,155 @@ function openModule(m){
   function enter(){ cupsA = startCups; cupsB = startCups; render(); show('bpong-game-screen'); }
   document.getElementById('bpong-start-btn').onclick = enter;
   renderCupsRow();
+})();
+
+/* ============================================================
+   MODULE 15 — PETIT BAC
+============================================================ */
+(function(){
+  var LETTERS = 'ABCDEFGHILMNOPRST'.split('');
+  var CATS = [
+    "un animal","un prénom","un pays","un fruit ou légume","un métier","une marque",
+    "une ville","un objet du quotidien","un film ou une série","un sport","une partie du corps",
+    "un personnage célèbre","un plat","un truc dans la cuisine","une chanson","un mot doux",
+    "quelque chose de rouge","un truc qu'on trouve à la plage","un super-héros","un instrument de musique",
+    "un dessin animé","une capitale","un animal de la ferme","une boisson","une émission de télé"
+  ];
+  var letterEl = document.getElementById('bac-letter');
+  var catEl = document.getElementById('bac-cat');
+  function draw(){
+    letterEl.textContent = pick(LETTERS);
+    catEl.textContent = pick(CATS);
+    letterEl.style.animation = 'none'; void letterEl.offsetWidth;
+    letterEl.style.animation = 'endPop .4s cubic-bezier(.2,.9,.3,1.4)';
+  }
+  document.getElementById('bac-next-btn').onclick = draw;
+  function enter(){ draw(); show('bac-game-screen'); }
+  document.getElementById('bac-start-btn').onclick = enter;
+  document.getElementById('bac-finish').onclick = function(){
+    gameOver({ emoji:'🔤', title:'FIN DU PETIT BAC', color:'var(--m-bac)', text:'Assez transpiré du cerveau. Santé !', onReplay:enter });
+  };
+})();
+
+/* ============================================================
+   MODULE 16 — QUI SUIS-JE ?
+============================================================ */
+(function(){
+  var NAMES = [
+    "Beyoncé","Harry Potter","Zinédine Zidane","Dark Vador","Batman","Kylian Mbappé","Cléopâtre",
+    "Homer Simpson","Lady Gaga","Napoléon Bonaparte","Spider-Man","Rihanna","Albert Einstein","Mario",
+    "Barack Obama","Elsa (La Reine des Neiges)","Cristiano Ronaldo","Shakira","Sherlock Holmes",
+    "Michael Jackson","Jul","Squeezie","Michael Jordan","Dwayne Johnson","Adele","Leonardo DiCaprio",
+    "Astérix","Naruto","Dracula","Angela Merkel","Booba","Taylor Swift","Mister Bean","Kim Kardashian"
+  ];
+  var deck = [], idx = 0, guesser = 0;
+  var turnPill = document.getElementById('qui-turn-pill');
+  var turnEl = document.getElementById('qui-turn');
+  var nameEl = document.getElementById('qui-name');
+  var card = document.getElementById('qui-card');
+  function newRound(){
+    if(idx >= deck.length){ deck = shuffle(NAMES); idx = 0; }
+    var g = players.length ? players[guesser % players.length] : 'Joueur';
+    turnPill.textContent = '🙈 ' + g;
+    turnEl.textContent = g + ', ne regarde pas !';
+    nameEl.textContent = deck[idx];
+    card.classList.add('entering');
+    setTimeout(function(){ card.classList.remove('entering'); }, 320);
+  }
+  document.getElementById('qui-next-btn').onclick = function(){ idx++; guesser++; newRound(); };
+  function enter(){ deck = shuffle(NAMES); idx = 0; guesser = 0; show('qui-game-screen'); newRound(); }
+  document.getElementById('qui-start-btn').onclick = enter;
+  document.getElementById('qui-finish').onclick = function(){
+    gameOver({ emoji:'🎭', title:'RIDEAU', color:'var(--m-qui)', text:'Belle troupe. On rejoue quand tu veux !', onReplay:enter });
+  };
+})();
+
+/* ============================================================
+   MODULE 17 — TIME'S UP
+============================================================ */
+(function(){
+  var WORDS = [
+    "une pizza","un dinosaure","le président","un pingouin","la tour Eiffel","un vampire","faire du vélo",
+    "un ninja","la pluie","un robot","éternuer","un magicien","le football","un fantôme","se brosser les dents",
+    "un kangourou","la neige","un astronaute","jouer de la guitare","un lion","pêcher","un zombie","danser la salsa",
+    "une licorne","un cowboy","ronfler","un requin","un anniversaire","la muraille de Chine","un pompier","skier",
+    "un perroquet","un selfie","un boxeur","se maquiller","un escargot","le Titanic","un chef cuisinier","méditer","un pirate"
+  ];
+  var DURS = [ {id:30,label:'30 s'}, {id:45,label:'45 s'}, {id:60,label:'60 s'} ];
+  var dur = 45, deck = [], idx = 0, score = 0, remaining = 0, timer = null;
+  var durRow = document.getElementById('tu-dur-row');
+  var timerEl = document.getElementById('tu-timer');
+  var scoreEl = document.getElementById('tu-score');
+  var wordEl = document.getElementById('tu-word');
+
+  function renderDurs(){
+    durRow.innerHTML = '';
+    DURS.forEach(function(d){
+      var chip = document.createElement('div');
+      chip.className = 'diff-chip' + (dur === d.id ? ' active' : '');
+      chip.style.setProperty('--m-chrono', 'var(--m-tu)');
+      chip.style.setProperty('--m-chrono-dk', 'var(--m-tu-dk)');
+      chip.textContent = d.label;
+      chip.onclick = function(){ dur = d.id; renderDurs(); };
+      durRow.appendChild(chip);
+    });
+  }
+  function nextWord(){ idx++; if(idx >= deck.length){ deck = shuffle(WORDS); idx = 0; } wordEl.textContent = deck[idx]; }
+  function end(){
+    clearInterval(timer);
+    gameOver({ emoji:'🎬', title:'BUZZER !', color:'var(--m-tu)', text:'<b>' + score + '</b> mot' + (score>1?'s':'') + ' deviné' + (score>1?'s':'') + ' ! Passe le téléphone à l\'équipe suivante.', replayLabel:'Rejouer', onReplay:launch });
+  }
+  function tick(){
+    remaining--;
+    timerEl.textContent = remaining;
+    timerEl.classList.toggle('low', remaining <= 10);
+    if(remaining <= 0) end();
+  }
+  document.getElementById('tu-ok').onclick = function(){ score++; scoreEl.textContent = score + ' trouvé' + (score>1?'s':''); nextWord(); };
+  document.getElementById('tu-pass').onclick = function(){ nextWord(); };
+  function launch(){
+    deck = shuffle(WORDS); idx = -1; score = 0; remaining = dur;
+    timerEl.textContent = remaining; timerEl.classList.remove('low');
+    scoreEl.textContent = '0 trouvé';
+    nextWord();
+    show('tu-game-screen');
+    clearInterval(timer); timer = setInterval(tick, 1000);
+  }
+  document.getElementById('tu-start-btn').onclick = launch;
+  document.getElementById('tu-quit').addEventListener('click', function(){ clearInterval(timer); });
+  window.tuOnOpen = function(){ renderDurs(); };
+  renderDurs();
+})();
+
+/* ============================================================
+   MODULE 18 — 2 VÉRITÉS, 1 MENSONGE
+============================================================ */
+(function(){
+  var THEMES = [
+    "tes voyages","ton enfance","tes talents cachés","tes pires habitudes","l'école",
+    "tes ex ou tes crushs","tes exploits sportifs","la nourriture","tes rencontres (presque) célèbres",
+    "tes bêtises d'ado","tes phobies","tes records personnels","tes vacances","tes jobs / ton travail",
+    "tes passions secrètes","les trucs gênants qui te sont arrivés","tes mensonges d'enfant"
+  ];
+  var turnIndex = 0, count = 0;
+  var turnEl = document.getElementById('deux-turn');
+  var themeEl = document.getElementById('deux-theme');
+  var pill = document.getElementById('deux-progress-pill');
+  var card = document.getElementById('deux-card');
+  function newTurn(){
+    var p = players.length ? players[turnIndex % players.length] : 'Joueur';
+    turnEl.textContent = 'Au tour de ' + p;
+    themeEl.textContent = pick(THEMES);
+    pill.textContent = 'Tour ' + count;
+    card.classList.add('entering');
+    setTimeout(function(){ card.classList.remove('entering'); }, 320);
+  }
+  document.getElementById('deux-next-btn').onclick = function(){ turnIndex++; count++; newTurn(); };
+  function enter(){ turnIndex = 0; count = 1; show('deux-game-screen'); newTurn(); }
+  document.getElementById('deux-start-btn').onclick = enter;
+  document.getElementById('deux-finish').onclick = function(){
+    gameOver({ emoji:'🕵️', title:'FIN DU BLUFF', color:'var(--m-deux)', text:'Impossible de savoir qui a menti sur quoi. Parfait.', onReplay:enter });
+  };
 })();
 
 /* ---- init ---- */

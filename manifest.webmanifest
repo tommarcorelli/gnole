@@ -1,7 +1,7 @@
 {
   "name": "GNOLE.",
   "short_name": "GNOLE",
-  "description": "L'appli qui lance la soirée — 14 jeux à boire (Picolo, Roi, Shot Roulette, Beer Pong...).",
+  "description": "L'appli qui lance la soirée — 18 jeux (Picolo, Roi, Petit Bac, Shot Roulette, Beer Pong...), version soft incluse.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

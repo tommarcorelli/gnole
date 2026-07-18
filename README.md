@@ -1,10 +1,10 @@
 # GNOLE. 🍹
 
-**L'appli qui lance la soirée.** Une PWA de **14 jeux** à boire, 100 % web, un seul fichier (`index.html`) — vanilla JS, aucune dépendance.
+**L'appli qui lance la soirée.** Une PWA de **18 jeux** de soirée (avec ou sans alcool), 100 % web, un seul fichier (`index.html`) — vanilla JS, aucune dépendance.
 
 👉 **Jouer :** https://tommarcorelli.github.io/gnole/
 
-## Les 14 jeux
+## Les 18 jeux
 
 | | Jeu | Principe |
 |---|---|---|
@@ -22,6 +22,10 @@
 | ⏱️ | **Cadence infernale** | Un tempo sonore qui accélère : on boit à chaque bip |
 | 🪜 | **Marathon** | De plus en plus à chaque manche, jusqu'à l'abandon |
 | 🏓 | **Beer Pong** | Compteur de score (2 équipes, cups) |
+| 🔤 | **Petit Bac** | Une lettre + une catégorie, trouve un mot avant les autres |
+| 🎭 | **Qui suis-je ?** | Un perso célèbre à deviner grâce aux indices du groupe |
+| 🎬 | **Time's Up** | Fais deviner un max de mots avant la fin du chrono |
+| 🕵️ | **2 vérités, 1 mensonge** | Trois affirmations, un mensonge : sauras-tu bluffer ? |
 
 ## Fonctionnalités
 
