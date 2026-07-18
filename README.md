@@ -13,7 +13,7 @@
 | 🫵 | **Le plus susceptible** | On vote, un boulet est désigné, classement final |
 | ⚡ | **Chrono Xtreme** | Défis minutés par intensité |
 | 🎯 | **Action ou Vérité** | Tour par tour, intensité Soft / Épicé / Hot |
-| 💣 | **La Bombe** | Passe le tel, réponds vite : le dernier à la tenir boit (tic-tac sonore) |
+| 🧠 | **Culture Quiz** | Une question, on révèle : ceux qui se plantent boivent |
 | 🎰 | **Roulette des gages** | La roue désigne un gage et une victime |
 | 🤫 | **Paranoïa** | Question chuchotée, prénom lâché : révélée ou secrète ? |
 | ⚔️ | **Duel** | Deux joueurs, un défi, un perdant qui boit |

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>GNOLE. — L'appli qui lance la soirée</title>
-<meta name="description" content="L'appli qui lance la soirée : 10 jeux à boire (Picolo, Roi de la soirée, La Bombe, Duel, Le Dé...). Mode sans alcool inclus.">
+<meta name="description" content="L'appli qui lance la soirée : 10 jeux à boire (Picolo, Roi de la soirée, Action ou Vérité, Duel, Culture Quiz...). Mode sans alcool inclus.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0A0713">
 <meta name="mobile-web-app-capable" content="yes">
@@ -32,7 +32,7 @@
     --m-susc:#7C9EFF;     --m-susc-dk:#161F47;
     --m-chrono:#4DE8FF;   --m-chrono-dk:#08303B;
     --m-av:#B98BFF;       --m-av-dk:#26173F;
-    --m-bomb:#FF5A3D;     --m-bomb-dk:#3D1206;
+    --m-quiz:#22C55E;     --m-quiz-dk:#08321C;
     --m-roul:#E85DFF;     --m-roul-dk:#340D44;
     --m-para:#2DD4BF;     --m-para-dk:#0A302B;
     --m-duel:#B6FF3D;     --m-duel-dk:#243A05;
@@ -287,12 +287,8 @@
   .diff-chip{ flex:1; text-align:center; background:rgba(0,0,0,.25); border:1px solid var(--glass-edge); border-radius:12px; padding:12px 8px; cursor:pointer; font-size:13px; font-weight:800; color:var(--muted); }
   .diff-chip.active{ color: var(--m-chrono); border-color: var(--m-chrono); background: var(--m-chrono-dk); }
 
-  /* ---- La Bombe ---- */
-  .bomb-visual{ font-size:92px; text-align:center; margin:18px 0 16px; line-height:1; filter:drop-shadow(0 0 22px rgba(255,90,61,.55)); animation:bombPulse 1s ease-in-out infinite; }
-  @keyframes bombPulse{ 0%,100%{ transform:scale(1) rotate(-3deg); } 50%{ transform:scale(1.12) rotate(3deg); } }
-  .bomb-visual.fast{ animation-duration:.38s; }
-  .bombe-prompt{ text-align:center; font-family:'Anton', sans-serif; font-size:27px; line-height:1.15; margin:2px auto 24px; max-width:340px; padding:0 12px; }
-  #bombe-pass-btn{ max-width:340px; margin:0 auto 12px; display:block; }
+  /* ---- Culture Quiz ---- */
+  .quiz-answer{ margin-top:16px; padding:13px 15px; border-radius:14px; background:var(--m-quiz-dk); border:1px solid var(--m-quiz); color:var(--m-quiz); font-weight:800; font-size:18px; text-align:center; line-height:1.3; animation:endPop .35s cubic-bezier(.2,.9,.3,1.4); }
 
   /* ---- Roulette des gages ---- */
   .slot{
@@ -568,34 +564,32 @@
   </div>
 </div>
 
-<!-- ======================= LA BOMBE ======================= -->
-<div class="screen hide" id="bombe-setup-screen">
-  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">💣 La Bombe</div></div>
-  <div class="module-title" style="color:var(--m-bomb)">La Bombe</div>
-  <div class="module-sub">Réponds vite, passe le téléphone. Ne sois pas le dernier à la tenir.</div>
+<!-- ======================= CULTURE QUIZ ======================= -->
+<div class="screen hide" id="quiz-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🧠 Quiz</div></div>
+  <div class="module-title" style="color:var(--m-quiz)">Culture Quiz</div>
+  <div class="module-sub">Une question, un pari. Ceux qui se plantent boivent.</div>
   <div class="panel">
     <h2>Comment jouer</h2>
-    <div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Une catégorie s'affiche. Chacun son tour, donne <b style="color:var(--ink)">un exemple</b> puis passe le téléphone en touchant <b style="color:var(--ink)">Passé</b>. La bombe explose à un moment <b style="color:var(--ink)">aléatoire</b> : celui qui la tient à ce moment <b style="color:var(--ink)">boit 3 gorgées</b>.</div>
+    <div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Une question s'affiche. Chacun annonce sa réponse <b style="color:var(--ink)">à voix haute</b>, puis on <b style="color:var(--ink)">révèle</b>. Tous ceux qui se sont trompés boivent <b style="color:var(--ink)">1 gorgée</b>. Personne n'avait bon ? Tout le monde boit. Tout le monde avait bon ? Santé collective !</div>
   </div>
-  <button class="btn-start" id="bombe-start-btn" style="--mc:var(--m-bomb)">Allumer la mèche</button>
+  <button class="btn-start" id="quiz-start-btn" style="--mc:var(--m-quiz)">Commencer le quiz</button>
 </div>
 
-<div class="screen hide" id="bombe-game-screen">
-  <div class="topbar"><div class="pill quit" id="bombe-quit" data-back="hub-screen">← Quitter</div><div class="pill">💣 Ça chauffe...</div></div>
-  <div class="bomb-visual" id="bomb-visual">💣</div>
-  <div class="cat-badge" id="bombe-cat-badge" style="display:table; margin:0 auto 8px; background:var(--m-bomb-dk); color:var(--m-bomb);">CATÉGORIE</div>
-  <div class="bombe-prompt" id="bombe-prompt">Cite...</div>
-  <button class="btn-start" id="bombe-pass-btn" style="--mc:var(--m-bomb)">Passé 💣</button>
-  <div class="hint">Donne un exemple, puis passe le téléphone au voisin.</div>
-</div>
-
-<div class="screen hide" id="bombe-end-screen">
-  <div class="panel end-panel">
-    <div class="wordmark" style="font-size:38px; color:var(--m-bomb); -webkit-text-fill-color:var(--m-bomb);">💥 BOOM</div>
-    <p id="bombe-end-text">La bombe a explosé ! La personne qui tient le téléphone boit 3 gorgées.</p>
-    <button class="btn-start" id="bombe-replay-btn" style="--mc:var(--m-bomb)">Nouvelle bombe</button>
-    <button class="btn-secondary" data-back="hub-screen">← Changer de jeu</button>
+<div class="screen hide" id="quiz-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill" id="quiz-progress-pill">Question 1</div></div>
+  <div class="progress-track"><div class="progress-fill" id="quiz-progress-fill" style="background:var(--m-quiz)"></div></div>
+  <div class="stage" style="height:300px;">
+    <div class="stack-edge e2"></div><div class="stack-edge e1"></div>
+    <div class="card" id="quiz-card" style="cursor:default;">
+      <div class="cat-badge" id="quiz-badge" style="background:var(--m-quiz-dk); color:var(--m-quiz);">QUESTION</div>
+      <div class="card-text" id="quiz-question" style="font-size:21px;">Question</div>
+      <div class="quiz-answer hide" id="quiz-answer">Réponse</div>
+    </div>
   </div>
+  <button class="btn-start" id="quiz-reveal-btn" style="--mc:var(--m-quiz)">👁️ Révéler la réponse</button>
+  <button class="btn-outline hide" id="quiz-next-btn" style="color:var(--m-quiz); border-color:var(--m-quiz);">Question suivante →</button>
+  <div class="finish-link" id="quiz-finish">🏁 Terminer</div>
 </div>
 
 <!-- ======================= ROULETTE DES GAGES ======================= -->
@@ -807,7 +801,7 @@ var MODULES = [
   { id:'susceptible', name:'Le plus susceptible', icon:'🫵', tag:'On vote, un boulet est désigné, il boit.', color:'--m-susc', dk:'--m-susc-dk', min:3, screen:'susc-setup-screen' },
   { id:'chrono', name:'Chrono Xtreme', icon:'⚡', tag:'Défis minutés, zéro pitié.', color:'--m-chrono', dk:'--m-chrono-dk', min:2, screen:'chrono-setup-screen' },
   { id:'av', name:'Action ou Vérité', icon:'🎯', tag:'Action ou vérité, tu choisis... ou tu bois.', color:'--m-av', dk:'--m-av-dk', min:2, screen:'av-setup-screen' },
-  { id:'bombe', name:'La Bombe', icon:'💣', tag:'Passe le tel, réponds vite. Le dernier à la tenir boit.', color:'--m-bomb', dk:'--m-bomb-dk', min:3, screen:'bombe-setup-screen' },
+  { id:'quiz', name:'Culture Quiz', icon:'🧠', tag:'Une question, un pari. Ceux qui se plantent boivent.', color:'--m-quiz', dk:'--m-quiz-dk', min:2, screen:'quiz-setup-screen' },
   { id:'roulette', name:'Roulette des gages', icon:'🎰', tag:'On lance la roue : un gage, une victime au hasard.', color:'--m-roul', dk:'--m-roul-dk', min:2, screen:'roul-setup-screen' },
   { id:'paranoia', name:'Paranoïa', icon:'🤫', tag:'Une question chuchotée, un prénom lâché. Révélée ou pas ?', color:'--m-para', dk:'--m-para-dk', min:3, screen:'para-setup-screen' },
   { id:'duel', name:'Duel', icon:'⚔️', tag:'Deux joueurs, un défi, un perdant qui boit.', color:'--m-duel', dk:'--m-duel-dk', min:2, screen:'duel-setup-screen' },
@@ -1699,85 +1693,86 @@ function openModule(m){
 })();
 
 /* ============================================================
-   MODULE 6 — LA BOMBE
+   MODULE 6 — CULTURE QUIZ
 ============================================================ */
 (function(){
-  var CATS = [
-    "un prénom de fille","un prénom de garçon","une marque de voiture","un pays",
-    "un fruit","un animal","une couleur","un métier","une marque d'alcool",
-    "un film","une série","un chanteur ou un groupe","une ville de France","un plat",
-    "un sport","un super-héros","une chose qu'on trouve dans un frigo","un dessin animé",
-    "une raison d'arriver en retard","une marque de vêtements","un instrument de musique",
-    "un légume","une capitale","un mot qui commence par S","un objet dans cette pièce",
-    "une boisson sans alcool","un personnage de jeu vidéo","une île"
+  var QUIZ = [
+    {q:"Combien de pattes a une araignée ?", a:"8"},
+    {q:"Quelle est la capitale de l'Australie ?", a:"Canberra (pas Sydney !)"},
+    {q:"En quelle année est tombé le mur de Berlin ?", a:"1989"},
+    {q:"Combien de joueurs d'une équipe de foot sont sur le terrain ?", a:"11"},
+    {q:"Quel est l'organe le plus grand du corps humain ?", a:"La peau"},
+    {q:"Quelle planète est la plus proche du Soleil ?", a:"Mercure"},
+    {q:"Combien de cordes a une guitare classique ?", a:"6"},
+    {q:"Dans quel pays est née la pizza ?", a:"L'Italie"},
+    {q:"Combien de côtés a un hexagone ?", a:"6"},
+    {q:"Quel est le plus grand océan du monde ?", a:"Le Pacifique"},
+    {q:"Combien de touches a un piano standard ?", a:"88"},
+    {q:"Quelle est la monnaie du Japon ?", a:"Le yen"},
+    {q:"Combien de minutes dure une mi-temps de foot ?", a:"45"},
+    {q:"Quel gaz les plantes absorbent-elles ?", a:"Le CO₂ (dioxyde de carbone)"},
+    {q:"Quel est l'animal terrestre le plus rapide ?", a:"Le guépard"},
+    {q:"Combien de couleurs dans un arc-en-ciel ?", a:"7"},
+    {q:"Quelle est la plus haute montagne du monde ?", a:"L'Everest"},
+    {q:"Qui a peint la Joconde ?", a:"Léonard de Vinci"},
+    {q:"Combien de continents y a-t-il ?", a:"7"},
+    {q:"Quel est le plus petit pays du monde ?", a:"Le Vatican"},
+    {q:"Combien de minutes dans une journée ?", a:"1440"},
+    {q:"Combien de dents a un adulte (dents de sagesse comprises) ?", a:"32"},
+    {q:"Dans quelle ville se trouve la statue de la Liberté ?", a:"New York"},
+    {q:"Quel métal est liquide à température ambiante ?", a:"Le mercure"},
+    {q:"Combien de cartes dans un jeu classique (sans jokers) ?", a:"52"},
+    {q:"Quelle est la langue la plus parlée au monde ?", a:"Le mandarin (chinois)"},
+    {q:"Combien de bosses a un dromadaire ?", a:"1 (le chameau en a 2)"},
+    {q:"Quel est le symbole chimique de l'or ?", a:"Au"},
+    {q:"Combien de faces a un dé classique ?", a:"6"},
+    {q:"Quel fleuve traverse Paris ?", a:"La Seine"},
+    {q:"Combien de temps met la Terre pour faire le tour du Soleil ?", a:"365 jours (1 an)"},
+    {q:"Quelle est la capitale du Canada ?", a:"Ottawa (pas Toronto !)"}
   ];
-  var visual = document.getElementById('bomb-visual');
-  var catBadge = document.getElementById('bombe-cat-badge');
-  var promptEl = document.getElementById('bombe-prompt');
-  var passBtn = document.getElementById('bombe-pass-btn');
-  var endText = document.getElementById('bombe-end-text');
-  var timer = null, explodeAt = 0, elapsed = 0, running = false;
+  var deck = [], idx = 0;
+  var progressPill = document.getElementById('quiz-progress-pill');
+  var progressFill = document.getElementById('quiz-progress-fill');
+  var badge = document.getElementById('quiz-badge');
+  var qEl = document.getElementById('quiz-question');
+  var aEl = document.getElementById('quiz-answer');
+  var revealBtn = document.getElementById('quiz-reveal-btn');
+  var nextBtn = document.getElementById('quiz-next-btn');
+  var card = document.getElementById('quiz-card');
 
-  /* ---- son (Web Audio, généré à la volée) ---- */
-  var actx = null;
-  function ensureAudio(){
-    if(actx) { if(actx.state === 'suspended') actx.resume(); return; }
-    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ actx = null; }
-  }
-  function tone(freq, dur, type, vol){
-    if(!actx) return;
-    var o = actx.createOscillator(), g = actx.createGain();
-    o.type = type || 'square'; o.frequency.value = freq;
-    g.gain.setValueAtTime(vol || 0.06, actx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
-    o.connect(g); g.connect(actx.destination);
-    o.start(); o.stop(actx.currentTime + dur);
-  }
-  function tick_(fast){ tone(fast ? 1400 : 900, 0.05, 'square', 0.05); }
-  function boom(){
-    if(!actx) return;
-    var o = actx.createOscillator(), g = actx.createGain();
-    o.type = 'sawtooth'; o.frequency.setValueAtTime(220, actx.currentTime);
-    o.frequency.exponentialRampToValueAtTime(40, actx.currentTime + 0.5);
-    g.gain.setValueAtTime(0.18, actx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.55);
-    o.connect(g); g.connect(actx.destination);
-    o.start(); o.stop(actx.currentTime + 0.55);
-  }
-
-  function newRound(){
-    var cat = pick(CATS);
-    catBadge.textContent = 'CATÉGORIE';
-    promptEl.textContent = 'Cite ' + cat;
-    visual.textContent = '💣';
-    visual.classList.remove('fast');
-    running = true; elapsed = 0;
-    explodeAt = 12 + Math.floor(Math.random() * 24); /* 12–35 s */
-    clearInterval(timer);
-    timer = setInterval(tick, 1000);
-  }
-  function tick(){
-    elapsed++;
-    var fast = (explodeAt - elapsed) <= 6;
-    if(fast) visual.classList.add('fast');
-    tick_(fast);
-    if(elapsed >= explodeAt){
-      clearInterval(timer); running = false;
-      boom();
-      endText.textContent = 'La bombe a explosé ! La personne qui tient le téléphone boit ' + (softMode ? '3 points' : '3 gorgées') + '.';
-      show('bombe-end-screen');
+  function showQuestion(){
+    if(idx >= deck.length){
+      gameOver({ emoji:'🧠', title:'QUIZ TERMINÉ', color:'var(--m-quiz)', text:'Toutes les questions y sont passées. Culture + gorgées, le combo parfait.', onReplay:launch });
+      return;
     }
+    badge.textContent = 'QUESTION ' + (idx+1);
+    qEl.textContent = deck[idx].q;
+    aEl.textContent = '✅ ' + deck[idx].a;
+    aEl.classList.add('hide');
+    revealBtn.classList.remove('hide');
+    nextBtn.classList.add('hide');
+    progressPill.textContent = 'Question ' + (idx+1) + ' / ' + deck.length;
+    progressFill.style.width = Math.round(((idx+1)/deck.length)*100) + '%';
   }
-  passBtn.onclick = function(){
-    if(!running) return;
-    tone(600, 0.04, 'triangle', 0.05);
-    visual.style.transform = 'scale(1.25)';
-    setTimeout(function(){ visual.style.transform = ''; }, 100);
+  revealBtn.onclick = function(){
+    aEl.classList.remove('hide');
+    badge.textContent = 'RÉPONSE';
+    revealBtn.classList.add('hide');
+    nextBtn.classList.remove('hide');
   };
-  function launch(){ ensureAudio(); show('bombe-game-screen'); newRound(); }
-  document.getElementById('bombe-start-btn').onclick = launch;
-  document.getElementById('bombe-replay-btn').onclick = launch;
-  document.getElementById('bombe-quit').addEventListener('click', function(){ clearInterval(timer); running = false; });
+  nextBtn.onclick = function(){
+    card.classList.add('leaving');
+    setTimeout(function(){
+      card.classList.remove('leaving');
+      idx++; showQuestion();
+      if(idx < deck.length){ card.classList.add('entering'); setTimeout(function(){ card.classList.remove('entering'); }, 320); }
+    }, 260);
+  };
+  function launch(){ deck = shuffle(QUIZ); idx = 0; show('quiz-game-screen'); showQuestion(); }
+  document.getElementById('quiz-start-btn').onclick = launch;
+  document.getElementById('quiz-finish').onclick = function(){
+    gameOver({ emoji:'🧠', title:'QUIZ TERMINÉ', color:'var(--m-quiz)', text:'Assez de culture pour ce soir. Santé !', onReplay:launch });
+  };
 })();
 
 /* ============================================================

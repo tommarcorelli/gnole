@@ -1,7 +1,7 @@
 {
   "name": "GNOLE.",
   "short_name": "GNOLE",
-  "description": "L'appli qui lance la soirée — 10 jeux à boire (Picolo, Roi, Bombe, Duel...).",
+  "description": "L'appli qui lance la soirée — 10 jeux à boire (Picolo, Roi, Quiz, Duel...).",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
