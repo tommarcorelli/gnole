@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>GNOLE. — L'appli qui lance la soirée</title>
-<meta name="description" content="L'appli qui lance la soirée : 10 jeux à boire (Picolo, Roi de la soirée, Action ou Vérité, Duel, Culture Quiz...). Mode sans alcool inclus.">
+<meta name="description" content="L'appli qui lance la soirée : 14 jeux à boire (Picolo, Roi de la soirée, Shot Roulette, Beer Pong, Culture Quiz...). Mode sans alcool inclus.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0A0713">
 <meta name="mobile-web-app-capable" content="yes">
@@ -33,6 +33,10 @@
     --m-chrono:#4DE8FF;   --m-chrono-dk:#08303B;
     --m-av:#B98BFF;       --m-av-dk:#26173F;
     --m-quiz:#22C55E;     --m-quiz-dk:#08321C;
+    --m-shotr:#F5A623;    --m-shotr-dk:#3A2606;
+    --m-cadence:#FF1E1E;  --m-cadence-dk:#3A0808;
+    --m-marathon:#6366F1; --m-marathon-dk:#17193F;
+    --m-bpong:#FB8C00;    --m-bpong-dk:#3A1E06;
     --m-roul:#E85DFF;     --m-roul-dk:#340D44;
     --m-para:#2DD4BF;     --m-para-dk:#0A302B;
     --m-duel:#B6FF3D;     --m-duel-dk:#243A05;
@@ -289,6 +293,32 @@
 
   /* ---- Culture Quiz ---- */
   .quiz-answer{ margin-top:16px; padding:13px 15px; border-radius:14px; background:var(--m-quiz-dk); border:1px solid var(--m-quiz); color:var(--m-quiz); font-weight:800; font-size:18px; text-align:center; line-height:1.3; animation:endPop .35s cubic-bezier(.2,.9,.3,1.4); }
+
+  /* ---- Shot Roulette ---- */
+  .shot-visual{ font-size:88px; text-align:center; margin:16px 0 6px; line-height:1; filter:drop-shadow(0 0 20px rgba(245,166,35,.55)); }
+  .shot-visual.shake{ animation:shotShake .45s ease-in-out; }
+  @keyframes shotShake{ 0%,100%{transform:translateX(0) rotate(0);} 20%{transform:translateX(-7px) rotate(-7deg);} 60%{transform:translateX(7px) rotate(7deg);} }
+  .verdict{ text-align:center; font-family:'Anton', sans-serif; font-size:24px; line-height:1.2; margin:2px auto 22px; max-width:340px; padding:0 12px; }
+
+  /* ---- Cadence infernale ---- */
+  .cadence-dot{ width:160px; height:160px; border-radius:50%; margin:22px auto 16px; display:flex; align-items:center; justify-content:center; font-family:'Anton', sans-serif; font-size:26px; text-transform:uppercase; text-align:center; background:var(--m-cadence-dk); border:3px solid var(--m-cadence); color:var(--m-cadence); transition:transform .08s ease, background .08s ease; }
+  .cadence-dot.beat{ transform:scale(1.16); background:var(--m-cadence); color:#180404; box-shadow:0 0 46px -6px var(--m-cadence); }
+  .cadence-stat{ text-align:center; color:var(--muted); font-size:13.5px; margin-bottom:16px; line-height:1.5; padding:0 14px; }
+  .cadence-stat b{ color:var(--ink); }
+
+  /* ---- Marathon ---- */
+  .marathon-num{ font-family:'Anton', sans-serif; font-size:104px; line-height:1; text-align:center; color:var(--m-marathon); margin:14px 0 2px; filter:drop-shadow(0 0 26px rgba(99,102,241,.55)); }
+  .marathon-label{ text-align:center; font-size:15px; color:var(--muted); margin-bottom:22px; line-height:1.5; padding:0 16px; }
+
+  /* ---- Beer Pong ---- */
+  .bp-board{ display:flex; gap:12px; margin:8px auto 16px; width:100%; max-width:420px; }
+  .bp-team{ flex:1; border:1px solid var(--glass-edge); border-radius:18px; padding:16px 10px; text-align:center; background:var(--glass); }
+  .bp-name{ font-family:'Anton', sans-serif; font-size:19px; text-transform:uppercase; margin-bottom:6px; }
+  .bp-cups{ font-family:'Anton', sans-serif; font-size:52px; line-height:1; color:var(--m-bpong); }
+  .bp-cups small{ display:block; font-family:'Manrope'; font-weight:700; font-size:11px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-top:4px; }
+  .bp-btns{ display:flex; gap:8px; margin-top:12px; }
+  .bp-btns button{ flex:1; border:1px solid var(--glass-edge); background:rgba(0,0,0,.28); color:var(--ink); border-radius:12px; padding:12px 0; font-weight:800; font-size:20px; cursor:pointer; }
+  .bp-btns .minus{ color:var(--m-bpong); border-color:var(--m-bpong); }
 
   /* ---- Roulette des gages ---- */
   .slot{
@@ -681,6 +711,81 @@
   <div class="finish-link" id="de-finish">🏁 Terminer</div>
 </div>
 
+<!-- ======================= SHOT ROULETTE ======================= -->
+<div class="screen hide" id="shotr-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🥃 Shot Roulette</div></div>
+  <div class="module-title" style="color:var(--m-shotr)">Shot Roulette</div>
+  <div class="module-sub">La roulette désigne qui descend son shot. Sans pitié.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Prépare des shots. Touche <b style="color:var(--ink)">Tourner</b> : la roulette désigne un joueur et son sort (shot, double, distribue, ou sauvé). En mode sans alcool, les shots deviennent des défis.</div></div>
+  <button class="btn-start" id="shotr-start-btn" style="--mc:var(--m-shotr)">Lancer</button>
+</div>
+<div class="screen hide" id="shotr-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill">🥃 Shot Roulette</div></div>
+  <div class="shot-visual" id="shotr-visual">🥃</div>
+  <div class="cat-badge" id="shotr-name" style="display:table; margin:0 auto 14px; background:var(--m-shotr-dk); color:var(--m-shotr);">—</div>
+  <div class="verdict" id="shotr-verdict">Touche pour lancer.</div>
+  <button class="btn-start" id="shotr-spin-btn" style="--mc:var(--m-shotr)">🥃 Tourner</button>
+  <div class="finish-link" id="shotr-finish">🏁 Terminer</div>
+</div>
+
+<!-- ======================= CADENCE INFERNALE ======================= -->
+<div class="screen hide" id="cadence-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">⏱️ Cadence</div></div>
+  <div class="module-title" style="color:var(--m-cadence)">Cadence infernale</div>
+  <div class="module-sub">Un tempo qui accélère. Tout le monde boit à chaque bip.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Au démarrage, un <b style="color:var(--ink)">bip régulier</b> retentit : à chaque bip, <b style="color:var(--ink)">tout le monde boit une gorgée</b>. Le rythme <b style="color:var(--ink)">accélère</b> tout seul. Dès que quelqu'un décroche, touche « Quelqu'un a lâché » : il/elle prend un gage (ou un cul sec). 🔊 Monte le son !</div></div>
+  <button class="btn-start" id="cadence-start-btn" style="--mc:var(--m-cadence)">Entrer</button>
+</div>
+<div class="screen hide" id="cadence-game-screen">
+  <div class="topbar"><div class="pill quit" id="cadence-quit" data-back="hub-screen">← Quitter</div><div class="pill">⏱️ Cadence</div></div>
+  <div class="cadence-dot" id="cadence-dot">PRÊT ?</div>
+  <div class="cadence-stat" id="cadence-stat">Tout le monde boit une gorgée à chaque bip. Le rythme accélère.</div>
+  <button class="btn-start" id="cadence-launch-btn" style="--mc:var(--m-cadence)">▶️ Démarrer le rythme</button>
+  <button class="btn-outline hide" id="cadence-stop-btn" style="color:var(--m-cadence); border-color:var(--m-cadence);">✋ Quelqu'un a lâché</button>
+</div>
+
+<!-- ======================= MARATHON ======================= -->
+<div class="screen hide" id="marathon-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🪜 Marathon</div></div>
+  <div class="module-title" style="color:var(--m-marathon)">Marathon</div>
+  <div class="module-sub">De plus en plus à chaque manche. Le premier à abandonner finit son verre.</div>
+  <div class="panel"><h2>Comment jouer</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Manche 1 : chacun boit <b style="color:var(--ink)">1 gorgée</b>. Manche 2 : <b style="color:var(--ink)">2 gorgées</b>. Manche 3 : <b style="color:var(--ink)">3</b>... et ça continue. On monte ensemble jusqu'à ce que quelqu'un <b style="color:var(--ink)">abandonne</b> : il/elle a perdu.</div></div>
+  <button class="btn-start" id="marathon-start-btn" style="--mc:var(--m-marathon)">Commencer</button>
+</div>
+<div class="screen hide" id="marathon-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill">🪜 Marathon</div></div>
+  <div class="marathon-num" id="marathon-num">1</div>
+  <div class="marathon-label" id="marathon-label">Manche 1</div>
+  <button class="btn-start" id="marathon-next-btn" style="--mc:var(--m-marathon)">Manche suivante →</button>
+  <button class="btn-outline" id="marathon-giveup-btn" style="color:var(--m-marathon); border-color:var(--m-marathon);">🏳️ J'abandonne</button>
+</div>
+
+<!-- ======================= BEER PONG ======================= -->
+<div class="screen hide" id="bpong-setup-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Hub</div><div class="pill">🏓 Beer Pong</div></div>
+  <div class="module-title" style="color:var(--m-bpong)">Beer Pong</div>
+  <div class="module-sub">Le compteur de score de ta partie. Rouge contre Bleu.</div>
+  <div class="panel"><h2>Nombre de cups par équipe</h2><div class="diff-row" id="bp-cups-row"></div></div>
+  <div class="panel"><h2>Comment ça marche</h2><div style="font-size:13.5px; color:var(--muted); line-height:1.7;">Touche <b style="color:var(--ink)">« − »</b> sur une équipe à chaque cup qu'elle perd. Quand une équipe atteint <b style="color:var(--ink)">0 cup</b>, elle a perdu et descend son verre. Le « + » corrige une erreur.</div></div>
+  <button class="btn-start" id="bpong-start-btn" style="--mc:var(--m-bpong)">Lancer la partie</button>
+</div>
+<div class="screen hide" id="bpong-game-screen">
+  <div class="topbar"><div class="pill quit" data-back="hub-screen">← Quitter</div><div class="pill">🏓 Beer Pong</div></div>
+  <div class="bp-board">
+    <div class="bp-team">
+      <div class="bp-name" id="bp-name-a" style="color:#FF6B6B;">Rouge</div>
+      <div class="bp-cups" id="bp-cups-a">6<small>cups</small></div>
+      <div class="bp-btns"><button class="minus" id="bp-minus-a">−</button><button id="bp-plus-a">+</button></div>
+    </div>
+    <div class="bp-team">
+      <div class="bp-name" id="bp-name-b" style="color:#7C9EFF;">Bleu</div>
+      <div class="bp-cups" id="bp-cups-b">6<small>cups</small></div>
+      <div class="bp-btns"><button class="minus" id="bp-minus-b">−</button><button id="bp-plus-b">+</button></div>
+    </div>
+  </div>
+  <div class="hint">« − » à chaque cup perdu. À 0 cup, l'équipe descend son verre.</div>
+</div>
+
 <!-- ======================= ÉCRAN DE FIN COMMUN ======================= -->
 <div class="screen hide" id="end-screen">
   <div class="panel end-panel">
@@ -805,7 +910,11 @@ var MODULES = [
   { id:'roulette', name:'Roulette des gages', icon:'🎰', tag:'On lance la roue : un gage, une victime au hasard.', color:'--m-roul', dk:'--m-roul-dk', min:2, screen:'roul-setup-screen' },
   { id:'paranoia', name:'Paranoïa', icon:'🤫', tag:'Une question chuchotée, un prénom lâché. Révélée ou pas ?', color:'--m-para', dk:'--m-para-dk', min:3, screen:'para-setup-screen' },
   { id:'duel', name:'Duel', icon:'⚔️', tag:'Deux joueurs, un défi, un perdant qui boit.', color:'--m-duel', dk:'--m-duel-dk', min:2, screen:'duel-setup-screen' },
-  { id:'de', name:'Le Dé', icon:'🎲', tag:'Un lancer, une règle. Simple et sans pitié.', color:'--m-de', dk:'--m-de-dk', min:2, screen:'de-setup-screen' }
+  { id:'de', name:'Le Dé', icon:'🎲', tag:'Un lancer, une règle. Simple et sans pitié.', color:'--m-de', dk:'--m-de-dk', min:2, screen:'de-setup-screen' },
+  { id:'shotr', name:'Shot Roulette', icon:'🥃', tag:'La roulette désigne qui descend son shot.', color:'--m-shotr', dk:'--m-shotr-dk', min:2, screen:'shotr-setup-screen' },
+  { id:'cadence', name:'Cadence infernale', icon:'⏱️', tag:'Un tempo qui accélère : on boit à chaque bip.', color:'--m-cadence', dk:'--m-cadence-dk', min:2, screen:'cadence-setup-screen' },
+  { id:'marathon', name:'Marathon', icon:'🪜', tag:'De plus en plus à chaque manche. Qui tiendra ?', color:'--m-marathon', dk:'--m-marathon-dk', min:2, screen:'marathon-setup-screen' },
+  { id:'bpong', name:'Beer Pong', icon:'🏓', tag:'Le compteur de score de ta partie de beer pong.', color:'--m-bpong', dk:'--m-bpong-dk', min:2, screen:'bpong-setup-screen' }
 ];
 var moduleListEl = document.getElementById('module-list');
 function renderModuleList(){
@@ -2003,6 +2112,169 @@ function openModule(m){
   document.getElementById('de-finish').onclick = function(){
     gameOver({ emoji:'🎲', title:'FIN DES LANCERS', color:'var(--m-de)', text:'Le sort a parlé. Santé !', onReplay:enter });
   };
+})();
+
+/* ============================================================
+   MODULE 11 — SHOT ROULETTE
+============================================================ */
+(function(){
+  var VERDICTS = [
+    'descend un shot ! 🥃', 'descend un shot ! 🥃', 'descend un shot ! 🥃',
+    'distribue un shot à qui il/elle veut.',
+    'double shot, courage ! 🥃🥃',
+    'est sauvé(e)... cette fois.',
+    'trinque avec la personne de son choix.',
+    'choisit quelqu\'un qui boit à sa place.'
+  ];
+  var visual = document.getElementById('shotr-visual');
+  var nameEl = document.getElementById('shotr-name');
+  var verdictEl = document.getElementById('shotr-verdict');
+  var spinBtn = document.getElementById('shotr-spin-btn');
+  var spinning = false;
+  function names(){ return players.length ? players : ['Joueur']; }
+  function spin(){
+    if(spinning) return; spinning = true; spinBtn.disabled = true;
+    verdictEl.textContent = '';
+    visual.classList.remove('shake');
+    var ticks = 0, total = 16 + Math.floor(Math.random()*8), delay = 55;
+    (function step(){
+      nameEl.textContent = pick(names());
+      ticks++;
+      if(ticks >= total){ land(); return; }
+      if(ticks > total - 6) delay += 45;
+      setTimeout(step, delay);
+    })();
+  }
+  function land(){
+    spinning = false; spinBtn.disabled = false;
+    var v = pick(VERDICTS);
+    if(softMode) v = v.replace(/double shot/g,'double défi').replace(/un shot/g,'un défi').replace(/shot/g,'défi').replace(/🥃/g,'');
+    verdictEl.textContent = nameEl.textContent + ' ' + v;
+    visual.classList.add('shake');
+    spinBtn.textContent = '🥃 Re-tourner';
+  }
+  spinBtn.onclick = spin;
+  function enter(){ nameEl.textContent = '—'; verdictEl.textContent = 'Touche pour lancer.'; spinBtn.textContent = '🥃 Tourner'; show('shotr-game-screen'); }
+  document.getElementById('shotr-start-btn').onclick = enter;
+  document.getElementById('shotr-finish').onclick = function(){
+    gameOver({ emoji:'🥃', title:'FIN DES SHOTS', color:'var(--m-shotr)', text:'On arrête là... pour l\'instant. Pense à boire de l\'eau !', onReplay:enter });
+  };
+})();
+
+/* ============================================================
+   MODULE 12 — CADENCE INFERNALE
+============================================================ */
+(function(){
+  var dot = document.getElementById('cadence-dot');
+  var statEl = document.getElementById('cadence-stat');
+  var launchBtn = document.getElementById('cadence-launch-btn');
+  var stopBtn = document.getElementById('cadence-stop-btn');
+  var timer = null, interval = 1500, beats = 0, actx = null;
+
+  function ensureAudio(){
+    if(actx){ if(actx.state === 'suspended') actx.resume(); return; }
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ actx = null; }
+  }
+  function beep(hi){
+    if(!actx) return;
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'square'; o.frequency.value = hi ? 1050 : 820;
+    g.gain.setValueAtTime(0.09, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.09);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + 0.09);
+  }
+  function schedule(){ clearInterval(timer); timer = setInterval(beat, interval); }
+  function beat(){
+    beats++;
+    beep(interval < 700);
+    dot.classList.add('beat'); dot.textContent = 'BOIS !';
+    setTimeout(function(){ dot.classList.remove('beat'); dot.textContent = '···'; }, Math.min(200, interval*0.3));
+    statEl.innerHTML = 'Rythme : <b>' + Math.round(60000/interval) + '</b>/min &nbsp;·&nbsp; <b>' + beats + '</b> gorgée' + (beats > 1 ? 's' : '');
+    if(beats % 3 === 0 && interval > 420){ interval = Math.max(420, interval - 130); schedule(); }
+  }
+  launchBtn.onclick = function(){
+    ensureAudio(); interval = 1500; beats = 0;
+    launchBtn.classList.add('hide'); stopBtn.classList.remove('hide');
+    schedule();
+  };
+  stopBtn.onclick = function(){
+    clearInterval(timer);
+    gameOver({ emoji:'⏱️', title:'CADENCE ROMPUE', color:'var(--m-cadence)', text:'Quelqu\'un a lâché après <b>' + beats + '</b> gorgées ! Il/elle prend un cul sec (ou un gage).', replayLabel:'Relancer', onReplay:enter });
+  };
+  function enter(){
+    clearInterval(timer); interval = 1500; beats = 0;
+    dot.classList.remove('beat'); dot.textContent = 'PRÊT ?';
+    statEl.innerHTML = 'Tout le monde boit une gorgée à chaque bip. Le rythme accélère.';
+    launchBtn.classList.remove('hide'); stopBtn.classList.add('hide');
+    show('cadence-game-screen');
+  }
+  document.getElementById('cadence-start-btn').onclick = enter;
+  document.getElementById('cadence-quit').addEventListener('click', function(){ clearInterval(timer); });
+})();
+
+/* ============================================================
+   MODULE 13 — MARATHON
+============================================================ */
+(function(){
+  var numEl = document.getElementById('marathon-num');
+  var labelEl = document.getElementById('marathon-label');
+  var round = 1;
+  function render(){
+    numEl.textContent = round;
+    var word = softMode ? (round === 1 ? 'point' : 'points') : (round === 1 ? 'gorgée' : 'gorgées');
+    var extra = round >= 5 ? ' — cul sec territory 🫠' : '';
+    labelEl.innerHTML = 'Manche ' + round + ' : tout le monde boit <b style="color:var(--ink)">' + round + ' ' + word + '</b>' + extra;
+    numEl.style.animation = 'none'; void numEl.offsetWidth;
+    numEl.style.animation = 'endPop .4s cubic-bezier(.2,.9,.3,1.4)';
+  }
+  document.getElementById('marathon-next-btn').onclick = function(){ round++; render(); };
+  function enter(){ round = 1; render(); show('marathon-game-screen'); }
+  document.getElementById('marathon-start-btn').onclick = enter;
+  document.getElementById('marathon-giveup-btn').onclick = function(){
+    gameOver({ emoji:'🪜', title:'ABANDON', color:'var(--m-marathon)', text:'Le marathon s\'arrête à la manche <b>' + round + '</b>. Le premier à abandonner finit son verre !', replayLabel:'Repartir à zéro', onReplay:enter });
+  };
+})();
+
+/* ============================================================
+   MODULE 14 — BEER PONG (compteur)
+============================================================ */
+(function(){
+  var startCups = 6, cupsA = 6, cupsB = 6;
+  var elA = document.getElementById('bp-cups-a'), elB = document.getElementById('bp-cups-b');
+  var cupsRow = document.getElementById('bp-cups-row');
+  var OPTS = [6, 10];
+
+  function renderCupsRow(){
+    cupsRow.innerHTML = '';
+    OPTS.forEach(function(n){
+      var chip = document.createElement('div');
+      chip.className = 'diff-chip' + (startCups === n ? ' active' : '');
+      chip.style.setProperty('--m-chrono', 'var(--m-bpong)');
+      chip.style.setProperty('--m-chrono-dk', 'var(--m-bpong-dk)');
+      chip.textContent = n + ' cups';
+      chip.onclick = function(){ startCups = n; renderCupsRow(); };
+      cupsRow.appendChild(chip);
+    });
+  }
+  function render(){
+    elA.innerHTML = cupsA + '<small>cups</small>';
+    elB.innerHTML = cupsB + '<small>cups</small>';
+  }
+  function win(winner, loser){
+    gameOver({ emoji:'🏓', title:'PARTIE GAGNÉE', color:'var(--m-bpong)', text:'<b>' + winner + '</b> gagne ! L\'équipe <b>' + loser + '</b> descend son verre. 🍺', replayLabel:'Nouvelle partie', onReplay:enter });
+  }
+  function check(){
+    if(cupsA <= 0) win('Bleu', 'Rouge');
+    else if(cupsB <= 0) win('Rouge', 'Bleu');
+  }
+  document.getElementById('bp-minus-a').onclick = function(){ if(cupsA > 0){ cupsA--; render(); check(); } };
+  document.getElementById('bp-plus-a').onclick = function(){ cupsA++; render(); };
+  document.getElementById('bp-minus-b').onclick = function(){ if(cupsB > 0){ cupsB--; render(); check(); } };
+  document.getElementById('bp-plus-b').onclick = function(){ cupsB++; render(); };
+  function enter(){ cupsA = startCups; cupsB = startCups; render(); show('bpong-game-screen'); }
+  document.getElementById('bpong-start-btn').onclick = enter;
+  renderCupsRow();
 })();
 
 /* ---- init ---- */

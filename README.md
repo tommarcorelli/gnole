@@ -1,10 +1,10 @@
 # GNOLE. 🍹
 
-**L'appli qui lance la soirée.** Une PWA de jeux à boire, 100 % web, sans installation, un seul fichier (`index.html`) — vanilla JS, aucune dépendance.
+**L'appli qui lance la soirée.** Une PWA de **14 jeux** à boire, 100 % web, un seul fichier (`index.html`) — vanilla JS, aucune dépendance.
 
 👉 **Jouer :** https://tommarcorelli.github.io/gnole/
 
-## Les 10 jeux
+## Les 14 jeux
 
 | | Jeu | Principe |
 |---|---|---|
@@ -18,6 +18,10 @@
 | 🤫 | **Paranoïa** | Question chuchotée, prénom lâché : révélée ou secrète ? |
 | ⚔️ | **Duel** | Deux joueurs, un défi, un perdant qui boit |
 | 🎲 | **Le Dé** | Un lancer, une règle |
+| 🥃 | **Shot Roulette** | La roulette désigne qui descend son shot |
+| ⏱️ | **Cadence infernale** | Un tempo sonore qui accélère : on boit à chaque bip |
+| 🪜 | **Marathon** | De plus en plus à chaque manche, jusqu'à l'abandon |
+| 🏓 | **Beer Pong** | Compteur de score (2 équipes, cups) |
 
 ## Fonctionnalités
 
