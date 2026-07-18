@@ -191,10 +191,19 @@
 
   .disclaimer{ text-align:center; color:var(--muted); font-size:11px; line-height:1.6; padding:0 10px; }
 
+  /* ---- Filtres du hub ---- */
+  .hub-filters{ display:flex; flex-wrap:wrap; gap:8px; margin:2px 2px 16px; }
+  .filter-chip{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:800; padding:8px 13px; border-radius:999px; cursor:pointer; border:1px solid var(--glass-edge); background:rgba(255,255,255,.03); color:var(--muted); transition:transform .12s ease, border-color .15s ease, color .15s ease, background .15s ease; }
+  .filter-chip:hover{ transform:translateY(-1px); }
+  .filter-chip.active{ color:var(--ink); border-color:var(--sunset-1); background:rgba(255,46,136,.14); }
+  .filter-chip .fc-count{ font-size:11px; font-weight:800; color:var(--muted); background:rgba(0,0,0,.3); border-radius:999px; padding:0 6px; }
+  .filter-chip.active .fc-count{ color:var(--sunset-3); }
+
   /* ---- Hub responsive : grille de jeux sur grand écran ---- */
   @media (min-width: 768px){
     #hub-screen{ max-width: 900px; }
     #hub-screen .hub-header, #hub-screen .panel, #hub-screen .disclaimer{ max-width: 480px; margin-left:auto; margin-right:auto; }
+    #hub-screen .hub-filters{ justify-content:center; }
     #hub-screen .module-list{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; align-items:stretch; }
     #hub-screen .module-card{ animation:none; }
   }
@@ -417,6 +426,7 @@
     </div>
   </div>
 
+  <div class="hub-filters" id="hub-filters"></div>
   <div class="module-list" id="module-list"></div>
 
   <div class="disclaimer">Jeux à consommer avec modération. Prévois de l'eau à portée de main et ne force jamais quelqu'un qui ne veut pas boire.</div>
@@ -1017,29 +1027,53 @@ hubSoftToggle.onclick = function(){ softMode = !softMode; hubSoftToggle.classLis
 
 /* ---- Modules (hub grid) ---- */
 var MODULES = [
-  { id:'picolo', name:'Picolo', icon:'🃏', tag:'Le classique repensé — 8 modes, 200+ cartes.', color:'--m-picolo', dk:'--m-picolo-dk', min:2, screen:'picolo-setup-screen' },
-  { id:'roi', name:'Roi de la soirée', icon:'👑', tag:'Le jeu de cartes culte, 52 règles et un verre au centre.', color:'--m-roi', dk:'--m-roi-dk', min:2, screen:'roi-setup-screen' },
-  { id:'susceptible', name:'Le plus susceptible', icon:'🫵', tag:'On vote, un boulet est désigné, il boit.', color:'--m-susc', dk:'--m-susc-dk', min:3, screen:'susc-setup-screen' },
-  { id:'chrono', name:'Chrono Xtreme', icon:'⚡', tag:'Défis minutés, zéro pitié.', color:'--m-chrono', dk:'--m-chrono-dk', min:2, screen:'chrono-setup-screen' },
-  { id:'av', name:'Action ou Vérité', icon:'🎯', tag:'Action ou vérité, tu choisis... ou tu bois.', color:'--m-av', dk:'--m-av-dk', min:2, screen:'av-setup-screen' },
-  { id:'quiz', name:'Culture Quiz', icon:'🧠', tag:'Une question, un pari. Ceux qui se plantent boivent.', color:'--m-quiz', dk:'--m-quiz-dk', min:2, screen:'quiz-setup-screen' },
-  { id:'roulette', name:'Roulette des gages', icon:'🎰', tag:'On lance la roue : un gage, une victime au hasard.', color:'--m-roul', dk:'--m-roul-dk', min:2, screen:'roul-setup-screen' },
-  { id:'paranoia', name:'Paranoïa', icon:'🤫', tag:'Une question chuchotée, un prénom lâché. Révélée ou pas ?', color:'--m-para', dk:'--m-para-dk', min:3, screen:'para-setup-screen' },
-  { id:'duel', name:'Duel', icon:'⚔️', tag:'Deux joueurs, un défi, un perdant qui boit.', color:'--m-duel', dk:'--m-duel-dk', min:2, screen:'duel-setup-screen' },
-  { id:'de', name:'Le Dé', icon:'🎲', tag:'Un lancer, une règle. Simple et sans pitié.', color:'--m-de', dk:'--m-de-dk', min:2, screen:'de-setup-screen' },
-  { id:'shotr', name:'Shot Roulette', icon:'🥃', tag:'La roulette désigne qui descend son shot.', color:'--m-shotr', dk:'--m-shotr-dk', min:2, screen:'shotr-setup-screen' },
-  { id:'cadence', name:'Cadence infernale', icon:'⏱️', tag:'Un tempo qui accélère : on boit à chaque bip.', color:'--m-cadence', dk:'--m-cadence-dk', min:2, screen:'cadence-setup-screen' },
-  { id:'marathon', name:'Marathon', icon:'🪜', tag:'De plus en plus à chaque manche. Qui tiendra ?', color:'--m-marathon', dk:'--m-marathon-dk', min:2, screen:'marathon-setup-screen' },
-  { id:'bpong', name:'Beer Pong', icon:'🏓', tag:'Le compteur de score de ta partie de beer pong.', color:'--m-bpong', dk:'--m-bpong-dk', min:2, screen:'bpong-setup-screen' },
-  { id:'bac', name:'Petit Bac', icon:'🔤', tag:'Une lettre, une catégorie. Trouve un mot avant les autres.', color:'--m-bac', dk:'--m-bac-dk', min:2, screen:'bac-setup-screen' },
-  { id:'qui', name:'Qui suis-je ?', icon:'🎭', tag:'Un perso célèbre à deviner grâce aux indices du groupe.', color:'--m-qui', dk:'--m-qui-dk', min:2, screen:'qui-setup-screen' },
-  { id:'tu', name:"Time's Up", icon:'🎬', tag:'Fais deviner un max de mots avant la fin du chrono.', color:'--m-tu', dk:'--m-tu-dk', min:2, screen:'tu-setup-screen' },
-  { id:'deux', name:'2 vérités, 1 mensonge', icon:'🕵️', tag:'Trois affirmations, un mensonge. Sauras-tu bluffer ?', color:'--m-deux', dk:'--m-deux-dk', min:2, screen:'deux-setup-screen' }
+  { id:'picolo', name:'Picolo', icon:'🃏', tag:'Le classique repensé — 8 modes, 200+ cartes.', color:'--m-picolo', dk:'--m-picolo-dk', min:2, screen:'picolo-setup-screen', cat:'alcool' },
+  { id:'roi', name:'Roi de la soirée', icon:'👑', tag:'Le jeu de cartes culte, 52 règles et un verre au centre.', color:'--m-roi', dk:'--m-roi-dk', min:2, screen:'roi-setup-screen', cat:'alcool' },
+  { id:'susceptible', name:'Le plus susceptible', icon:'🫵', tag:'On vote, un boulet est désigné, il boit.', color:'--m-susc', dk:'--m-susc-dk', min:3, screen:'susc-setup-screen', cat:'alcool' },
+  { id:'chrono', name:'Chrono Xtreme', icon:'⚡', tag:'Défis minutés, zéro pitié.', color:'--m-chrono', dk:'--m-chrono-dk', min:2, screen:'chrono-setup-screen', cat:'soft' },
+  { id:'av', name:'Action ou Vérité', icon:'🎯', tag:'Action ou vérité, tu choisis... ou tu bois.', color:'--m-av', dk:'--m-av-dk', min:2, screen:'av-setup-screen', cat:'soft' },
+  { id:'quiz', name:'Culture Quiz', icon:'🧠', tag:'Une question, un pari. Ceux qui se plantent boivent.', color:'--m-quiz', dk:'--m-quiz-dk', min:2, screen:'quiz-setup-screen', cat:'soft' },
+  { id:'roulette', name:'Roulette des gages', icon:'🎰', tag:'On lance la roue : un gage, une victime au hasard.', color:'--m-roul', dk:'--m-roul-dk', min:2, screen:'roul-setup-screen', cat:'alcool', x:true },
+  { id:'paranoia', name:'Paranoïa', icon:'🤫', tag:'Une question chuchotée, un prénom lâché. Révélée ou pas ?', color:'--m-para', dk:'--m-para-dk', min:3, screen:'para-setup-screen', cat:'soft' },
+  { id:'duel', name:'Duel', icon:'⚔️', tag:'Deux joueurs, un défi, un perdant qui boit.', color:'--m-duel', dk:'--m-duel-dk', min:2, screen:'duel-setup-screen', cat:'soft', x:true },
+  { id:'de', name:'Le Dé', icon:'🎲', tag:'Un lancer, une règle. Simple et sans pitié.', color:'--m-de', dk:'--m-de-dk', min:2, screen:'de-setup-screen', cat:'alcool', x:true },
+  { id:'shotr', name:'Shot Roulette', icon:'🥃', tag:'La roulette désigne qui descend son shot.', color:'--m-shotr', dk:'--m-shotr-dk', min:2, screen:'shotr-setup-screen', cat:'alcool', x:true },
+  { id:'cadence', name:'Cadence infernale', icon:'⏱️', tag:'Un tempo qui accélère : on boit à chaque bip.', color:'--m-cadence', dk:'--m-cadence-dk', min:2, screen:'cadence-setup-screen', cat:'alcool', x:true },
+  { id:'marathon', name:'Marathon', icon:'🪜', tag:'De plus en plus à chaque manche. Qui tiendra ?', color:'--m-marathon', dk:'--m-marathon-dk', min:2, screen:'marathon-setup-screen', cat:'alcool' },
+  { id:'bpong', name:'Beer Pong', icon:'🏓', tag:'Le compteur de score de ta partie de beer pong.', color:'--m-bpong', dk:'--m-bpong-dk', min:2, screen:'bpong-setup-screen', cat:'alcool' },
+  { id:'bac', name:'Petit Bac', icon:'🔤', tag:'Une lettre, une catégorie. Trouve un mot avant les autres.', color:'--m-bac', dk:'--m-bac-dk', min:2, screen:'bac-setup-screen', cat:'soft', x:true },
+  { id:'qui', name:'Qui suis-je ?', icon:'🎭', tag:'Un perso célèbre à deviner grâce aux indices du groupe.', color:'--m-qui', dk:'--m-qui-dk', min:2, screen:'qui-setup-screen', cat:'soft' },
+  { id:'tu', name:"Time's Up", icon:'🎬', tag:'Fais deviner un max de mots avant la fin du chrono.', color:'--m-tu', dk:'--m-tu-dk', min:2, screen:'tu-setup-screen', cat:'soft' },
+  { id:'deux', name:'2 vérités, 1 mensonge', icon:'🕵️', tag:'Trois affirmations, un mensonge. Sauras-tu bluffer ?', color:'--m-deux', dk:'--m-deux-dk', min:2, screen:'deux-setup-screen', cat:'soft' }
 ];
+var FILTERS = [
+  { id:'tous', label:'Tous', icon:'🎲' },
+  { id:'alcool', label:'Alcool', icon:'🍹' },
+  { id:'soft', label:'Soft', icon:'🧠' },
+  { id:'express', label:'Express', icon:'⚡' }
+];
+var activeFilter = 'tous';
 var moduleListEl = document.getElementById('module-list');
+var hubFiltersEl = document.getElementById('hub-filters');
+function matchesFilter(m){
+  if(activeFilter === 'tous') return true;
+  if(activeFilter === 'express') return !!m.x;
+  return m.cat === activeFilter;
+}
+function renderFilters(){
+  hubFiltersEl.innerHTML = '';
+  FILTERS.forEach(function(f){
+    var count = f.id === 'tous' ? MODULES.length : MODULES.filter(function(m){ return f.id === 'express' ? m.x : m.cat === f.id; }).length;
+    var chip = document.createElement('div');
+    chip.className = 'filter-chip' + (activeFilter === f.id ? ' active' : '');
+    chip.innerHTML = f.icon + ' ' + f.label + ' <span class="fc-count">' + count + '</span>';
+    chip.onclick = function(){ activeFilter = f.id; renderFilters(); renderModuleList(); };
+    hubFiltersEl.appendChild(chip);
+  });
+}
 function renderModuleList(){
   moduleListEl.innerHTML = '';
-  MODULES.forEach(function(m, idx){
+  MODULES.filter(matchesFilter).forEach(function(m, idx){
     var locked = players.length < m.min;
     var el = document.createElement('div');
     el.className = 'module-card' + (locked ? ' locked' : '');
@@ -2547,6 +2581,7 @@ function openModule(m){
 })();
 
 /* ---- init ---- */
+renderFilters();
 renderHubChips();
 renderModuleList();
 })();
